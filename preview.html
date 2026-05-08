@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>施工写真 プレビュー｜万波屋左官店</title>
+  <style>
+    body { font-family: sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 20px; }
+    h1 { text-align: center; font-size: 18px; margin-bottom: 6px; }
+    p.note { text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px; }
+
+    .mode-area { text-align:center; margin-bottom:20px; }
+    .mode-hint { font-size:14px; color:#aaa; margin-bottom:10px; }
+    .mode-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .mode-btn {
+      padding:10px 22px; border-radius:6px; border:2px solid #555;
+      background:transparent; color:#aaa; cursor:pointer; font-size:14px; font-weight:bold;
+      transition: all 0.2s;
+    }
+    .mode-btn.active-machi   { border-color:#4A7C59; color:#fff; background:#4A7C59; }
+    .mode-btn.active-nochoba { border-color:#2980b9; color:#fff; background:#2980b9; }
+    .mode-btn.active-sagyo   { border-color:#C0392B; color:#fff; background:#C0392B; }
+
+    .controls { display:flex; gap:10px; justify-content:center; margin-bottom:24px; flex-wrap:wrap; }
+    .btn { padding:10px 20px; border-radius:6px; border:none; font-size:14px; font-weight:bold; cursor:pointer; }
+    .btn-show  { background:#8B6914; color:#fff; }
+    .btn-clear { background:#444; color:#fff; }
+
+    .section-label {
+      font-size:13px; color:#888; text-align:center;
+      margin: 20px 0 10px; letter-spacing:0.1em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: #2a2a2a; border-radius: 6px; overflow: hidden;
+      cursor: pointer; border: 3px solid #444; transition: border-color 0.15s;
+    }
+    .card.machi   { border-color: #4A7C59; }
+    .card.nochoba { border-color: #2980b9; }
+    .card.sagyo   { border-color: #C0392B; }
+
+    .card img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+    .card .name { font-size:10px; padding:5px 7px 2px; color:#999; word-break:break-all; }
+    .card .tag  { font-size:12px; font-weight:bold; padding:3px 7px 7px; min-height:20px; }
+    .card.machi   .tag { color:#4A7C59; }
+    .card.nochoba .tag { color:#2980b9; }
+    .card.sagyo   .tag { color:#C0392B; }
+
+    .result { background:#2a2a2a; border-radius:8px; padding:16px; margin-top:24px; }
+    .result h2 { font-size:14px; margin:12px 0 6px; }
+    .result pre { color:#ccc; font-size:12px; white-space:pre-wrap; word-break:break-all; background:#111; padding:10px; border-radius:4px; }
+  </style>
+</head>
+<body>
+
+<h1>施工写真 プレビュー（全95枚）</h1>
+<p class="note">モードを選んで写真をクリック → 振り分ける</p>
+
+<div class="mode-area">
+  <div class="mode-hint" id="mode-hint">現在のモード：🏠 町場（住宅・店舗）</div>
+  <div class="mode-btns">
+    <button class="mode-btn active-machi"  id="btn-machi"   onclick="setMode('machi')">🏠 町場（住宅・店舗）</button>
+    <button class="mode-btn"              id="btn-nochoba" onclick="setMode('nochoba')">🏗 野丁場（建設会社）</button>
+    <button class="mode-btn"              id="btn-sagyo"   onclick="setMode('sagyo')">🔨 作業風景</button>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn btn-clear" onclick="clearAll()">すべてクリア</button>
+  <button class="btn btn-show"  onclick="showResult()">振り分け結果を表示</button>
+</div>
+
+<div class="section-label">── 既存HP写真（images/）──</div>
+<div class="grid" id="grid-existing"></div>
+
+<div class="section-label">── 施工写真フォルダ（images/施工写真/）──</div>
+<div class="grid" id="grid-kojishot"></div>
+
+<div class="result" id="result" style="display:none">
+  <h2>🏠 町場（住宅・店舗）に選んだもの</h2>
+  <pre id="list-machi"></pre>
+  <h2>🏗 野丁場（建設会社）に選んだもの</h2>
+  <pre id="list-nochoba"></pre>
+  <h2>🔨 作業風景に選んだもの</h2>
+  <pre id="list-sagyo"></pre>
+</div>
+
+<script>
+const existing = [
+  {name:"hero.jpg",    path:"images/hero.jpg"},
+  {name:"machi01.jpg", path:"images/machi01.jpg"},
+  {name:"pro01.jpg",   path:"images/pro01.jpg"},
+  {name:"pro02.jpg",   path:"images/pro02.jpg"},
+  {name:"work01.jpg",  path:"images/work01.jpg"},
+  {name:"work02.jpg",  path:"images/work02.jpg"},
+  {name:"work03.jpg",  path:"images/work03.jpg"},
+  {name:"work04.jpg",  path:"images/work04.jpg"},
+  {name:"work05.jpg",  path:"images/work05.jpg"},
+  {name:"work06.jpg",  path:"images/work06.jpg"},
+  {name:"work07.jpg",  path:"images/work07.jpg"},
+  {name:"work08.jpg",  path:"images/work08.jpg"},
+];
+
+const kojishot = [
+  "53530140.3e960fcc1cc9cdf13b9e72e17f89d4aa.20101208.jpg",
+  "53530140.7c015e420a5bc4853a752dd1f87ea01b.20101208.jpg",
+  "53530140.aa5fdfc9360da0f2f7e91fd640068ce2.20101208.jpg",
+  "53530140.de89da9c8502c3771e951cc1e361f223.20101208.jpg",
+  "64152378225__F970BC22-5D05-4580-B22D-D7A3A426E487.jpg",
+  "IMG_0091.jpg","IMG_0093.jpg","IMG_0094.jpg",
+  "IMG_0775 2.jpg","IMG_0775.jpg","IMG_0816.jpg","IMG_0821.jpg","IMG_0835.jpg",
+  "IMG_1015.jpg","IMG_1119.jpg",
+  "IMG_1493.jpg","IMG_1494.jpg","IMG_1495.jpg","IMG_1496.jpg","IMG_1498.jpg",
+  "IMG_1507.jpg","IMG_1561.jpg","IMG_1598.jpg",
+  "IMG_2248.jpg","IMG_2601.jpg","IMG_2606.jpg","IMG_2657.jpg",
+  "IMG_2720.jpg","IMG_2721.jpg","IMG_2722.jpg","IMG_2724.jpg","IMG_2727.jpg",
+  "IMG_2912.jpg","IMG_2937.jpg","IMG_2938.jpg","IMG_2939.jpg","IMG_2940.jpg",
+  "IMG_2976.jpg","IMG_2977.jpg","IMG_3020.jpg","IMG_3023.jpg","IMG_3024.jpg",
+  "IMG_3043.jpg","IMG_3045.jpg","IMG_3360.jpg","IMG_3497.jpg",
+  "IMG_4250.jpg","IMG_4336.jpg","IMG_4452.jpg",
+  "IMG_4918.jpg","IMG_4919.jpg","IMG_4923.jpg","IMG_4924.jpg","IMG_4945.jpg",
+  "IMG_5343.jpg","IMG_5344.jpg","IMG_5345.jpg","IMG_5348.jpg",
+  "IMG_5439.jpg","IMG_5441.jpg","IMG_5443.jpg","IMG_5444.jpg","IMG_5445.jpg","IMG_5446.jpg",
+  "IMG_5592.jpg","IMG_5593.jpg","IMG_5594.jpg",
+  "IMG_5652.jpg","IMG_5653.jpg","IMG_5655.jpg",
+  "IMG_5879.jpg","IMG_5880.jpg",
+  "IMG_6814.jpg","IMG_6816.jpg","IMG_6842.jpg","IMG_6843.jpg",
+  "IMG_7779.jpg","IMG_7784.jpg","IMG_7792.jpg",
+  "IMG_8007.jpg","IMG_8008.jpg","IMG_8917.jpg",
+  "IMG_4896.jpg"
+].map(n => ({name: n, path: "images/施工写真/" + n}));
+
+const labels = { machi:'🏠 町場', nochoba:'🏗 野丁場', sagyo:'🔨 作業風景' };
+const hints  = { machi:'🏠 町場（住宅・店舗）', nochoba:'🏗 野丁場（建設会社）', sagyo:'🔨 作業風景' };
+let mode = 'machi';
+const state = {};
+let cardCount = 0;
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('mode-hint').textContent = '現在のモード：' + hints[m];
+  ['machi','nochoba','sagyo'].forEach(k => {
+    document.getElementById('btn-' + k).className =
+      'mode-btn' + (k === m ? ' active-' + k : '');
+  });
+}
+
+function toggle(i, name) {
+  const card = document.getElementById('card-' + i);
+  if (state[name] === mode) {
+    delete state[name];
+    card.className = 'card';
+    card.querySelector('.tag').textContent = '';
+  } else {
+    state[name] = mode;
+    card.className = 'card ' + mode;
+    card.querySelector('.tag').textContent = labels[mode];
+  }
+}
+
+function clearAll() {
+  Object.keys(state).forEach(k => delete state[k]);
+  document.querySelectorAll('.card').forEach(c => {
+    c.className = 'card';
+    c.querySelector('.tag').textContent = '';
+  });
+  document.getElementById('result').style.display = 'none';
+}
+
+function showResult() {
+  ['machi','nochoba','sagyo'].forEach(k => {
+    const list = Object.keys(state).filter(n => state[n] === k);
+    document.getElementById('list-' + k).textContent = list.length ? list.join('\n') : '（未選択）';
+  });
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+function buildGrid(files, gridId) {
+  const grid = document.getElementById(gridId);
+  files.forEach(file => {
+    const i = cardCount++;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-' + i;
+    card.onclick = () => toggle(i, file.name);
+    card.innerHTML = `
+      <img src="${encodeURI(file.path)}" alt="${file.name}" loading="lazy">
+      <div class="name">${file.name}</div>
+      <div class="tag"></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+buildGrid(existing,  'grid-existing');
+buildGrid(kojishot, 'grid-kojishot');
+</script>
+</body>
+</html>

@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google-site-verification" content="ZXt9bEyTg9z5ONQEA0gI448dXq7xQ3zPflaY8kYEWQk" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="alternate" hreflang="ja" href="https://banpaya-sakan.com/" />
+  <link rel="alternate" hreflang="en" href="https://banpaya-sakan.com/en/" />
+  <link rel="alternate" hreflang="x-default" href="https://banpaya-sakan.com/" />
+  <title>万波屋左官店｜南房総・君津・木更津の左官工事</title>
+  <meta name="description" content="南房総・君津・木更津の左官工事は万波屋左官店へ。漆喰・モルタルの室内仕上げから建設会社向けの野丁場まで対応。職人歴20年以上の施工実績。">
+  <meta name="keywords" content="左官,南房総,君津,木更津,漆喰,モルタル,左官工事,千葉,野丁場,内装,塗り壁">
+  <meta property="og:title" content="万波屋左官店｜南房総・千葉の左官工事">
+  <meta property="og:description" content="漆喰・モルタルの室内仕上げから建設会社向け野丁場まで。万波屋左官店、職人歴20年以上の施工実績。">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --shikkui: #F5F0E8;
+      --tsuchi:  #8B6914;
+      --sumi:    #2C2C2C;
+      --midori:  #4A7C59;
+      --accent:  #C0392B;
+      --gray:    #666;
+      --light:   #FAF8F4;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--sumi);
+      background: #fff;
+      line-height: 1.7;
+    }
+
+    /* ===== ヘッダー ===== */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(44,44,44,0.97);
+      backdrop-filter: blur(6px);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      color: #fff;
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(14px, 3vw, 18px);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+
+    .logo span {
+      font-size: 0.7em;
+      opacity: 0.7;
+      display: block;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+    }
+
+    .header-cta {
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-size: clamp(12px, 2.5vw, 14px);
+      font-weight: 700;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+
+    .header-cta:hover { opacity: 0.85; }
+
+    /* ===== ナビ（PC） ===== */
+    nav {
+      display: none;
+    }
+
+    /* ===== 言語切替ボタン（常時表示） ===== */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lang-link {
+      color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.35);
+      padding: 5px 11px;
+      border-radius: 4px;
+      font-size: 12px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .lang-link:hover { color: #fff; border-color: rgba(255,255,255,0.75); }
+
+    @media (min-width: 768px) {
+      nav {
+        display: flex;
+        gap: 24px;
+      }
+      nav a {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        font-size: 13px;
+        transition: color 0.2s;
+      }
+      nav a:hover { color: #fff; }
+    }
+
+    /* ===== ヒーロー ===== */
+    .hero {
+      position: relative;
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2C2C2C 0%, #4a3728 50%, #2C2C2C 100%);
+      overflow: hidden;
+      text-align: center;
+      padding: 80px 24px 60px;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('images/hero.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.35;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+    }
+
+    .hero-label {
+      display: inline-block;
+      border: 1px solid rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      padding: 4px 16px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(28px, 6vw, 56px);
+      color: #fff;
+      line-height: 1.4;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+
+    .hero p {
+      color: rgba(255,255,255,0.85);
+      font-size: clamp(14px, 2.5vw, 17px);
+      margin-bottom: 36px;
+      line-height: 1.9;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: clamp(14px, 2.5vw, 16px);
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover { opacity: 0.85; }
+
+    .btn-secondary {
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.6);
+      padding: 14px 32px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: clamp(14px, 2.5vw, 16px);
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: #fff;
+    }
+
+    /* ===== 強み ===== */
+    .features {
+      background: var(--shikkui);
+      padding: 64px 24px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(22px, 4vw, 32px);
+      margin-bottom: 8px;
+      color: var(--sumi);
+    }
+
+    .section-sub {
+      text-align: center;
+      color: var(--gray);
+      font-size: 14px;
+      margin-bottom: 48px;
+      letter-spacing: 0.05em;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 640px) {
+      .features-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .feature-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feature-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--tsuchi);
+      min-height: 2.8em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.8;
+    }
+
+    /* ===== 施工事例 ===== */
+    .works {
+      padding: 64px 24px;
+      background: #fff;
+    }
+
+    .works-category {
+      max-width: 1000px;
+      margin: 0 auto 48px;
+    }
+
+    .works-category-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--tsuchi);
+      border-left: 4px solid var(--tsuchi);
+      padding-left: 12px;
+      margin-bottom: 16px;
+    }
+
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .works-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    }
+
+    @media (min-width: 960px) {
+      .works-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .work-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--shikkui);
+    }
+
+    .work-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .work-item:hover img { transform: scale(1.05); }
+
+    .work-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      color: #fff;
+      font-size: 12px;
+      padding: 20px 10px 10px;
+    }
+
+    .work-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: 13px;
+      gap: 8px;
+    }
+
+    /* ===== サービス ===== */
+    .services {
+      background: var(--sumi);
+      color: #fff;
+      padding: 64px 24px;
+    }
+
+    .services .section-title { color: #fff; }
+    .services .section-sub { color: rgba(255,255,255,0.6); }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 640px) {
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 960px) {
+      .services-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .service-item {
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 24px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .service-item h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #F5C842;
+    }
+
+    .service-item p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.8;
+    }
+
+    /* ===== 対応エリア ===== */
+    .area {
+      background: var(--light);
+      padding: 64px 24px;
+      text-align: center;
+    }
+
+    .area-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: 700px;
+      margin: 0 auto 24px;
+    }
+
+    .area-tag {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 14px;
+      color: var(--sumi);
+    }
+
+    .area-tag.main {
+      background: var(--tsuchi);
+      border-color: var(--tsuchi);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .area-note {
+      font-size: 13px;
+      color: var(--gray);
+    }
+
+    /* ===== 代表挨拶 ===== */
+    .about {
+      padding: 64px 24px;
+      background: #fff;
+    }
+
+    .about-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      max-width: 860px;
+      margin: 0 auto;
+      align-items: center;
+    }
+
+    @media (min-width: 768px) {
+      .about-inner { flex-direction: row; align-items: flex-start; }
+    }
+
+    .about-photo {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--shikkui);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      border: 4px solid var(--shikkui);
+    }
+
+    .about-photo img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .about-text h2 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(20px, 3.5vw, 26px);
+      margin-bottom: 16px;
+      color: var(--sumi);
+    }
+
+    .about-text p {
+      font-size: 15px;
+      color: var(--gray);
+      line-height: 2;
+      margin-bottom: 12px;
+    }
+
+    .about-name {
+      margin-top: 16px;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--sumi);
+    }
+
+    .about-name span {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--gray);
+      display: block;
+    }
+
+    /* ===== お問い合わせ ===== */
+    .contact {
+      background: var(--shikkui);
+      padding: 64px 24px;
+    }
+
+    .contact-inner {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--sumi);
+    }
+
+    .form-group label .required {
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 2px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 15px;
+      background: #fff;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--tsuchi);
+    }
+
+    .form-group textarea {
+      height: 140px;
+      resize: vertical;
+    }
+
+    .form-submit {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      width: 100%;
+      padding: 16px;
+      border-radius: 6px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      letter-spacing: 0.05em;
+    }
+
+    .form-submit:hover { opacity: 0.85; }
+
+    .form-note {
+      font-size: 12px;
+      color: var(--gray);
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* ===== フッター ===== */
+    footer {
+      background: var(--sumi);
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 13px;
+    }
+
+    footer strong {
+      display: block;
+      color: #fff;
+      font-family: 'Noto Serif JP', serif;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    footer a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+    }
+
+    /* ===== 共通 ===== */
+    .container { max-width: 1080px; margin: 0 auto; }
+
+    .divider {
+      width: 40px;
+      height: 3px;
+      background: var(--tsuchi);
+      margin: 12px auto 40px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header>
+  <a href="#" class="logo">
+    万波屋左官店
+    <span>BANPAYA PLASTER WORKS</span>
+  </a>
+  <nav>
+    <a href="#works">施工事例</a>
+    <a href="#services">対応工事</a>
+    <a href="#area">対応エリア</a>
+    <a href="#about">会社概要</a>
+    <a href="#contact">お問い合わせ</a>
+  </nav>
+  <div class="header-right">
+    <a href="/en/" class="lang-link">🇺🇸 EN</a>
+    <a href="#contact" class="header-cta">無料相談・お問い合わせ</a>
+  </div>
+</header>
+
+<!-- ヒーロー -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-label">南房総・千葉の左官工事</div>
+    <h1>この仕上がりを、<br>あなたの現場へ。</h1>
+    <p>漆喰・モルタル・塗り壁。<br>
+       住宅の室内仕上げから、建設会社向けの大型物件まで。<br>
+       万波屋左官店が対応します。</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">無料でお問い合わせ</a>
+      <a href="#works" class="btn-secondary">施工事例を見る</a>
+    </div>
+  </div>
+</section>
+
+<!-- 強み -->
+<section class="features">
+  <h2 class="section-title">万波屋が選ばれる理由</h2>
+  <div class="divider"></div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🏚</div>
+      <h3>漆喰・モルタルの技術力</h3>
+      <p>曲面・アーチ・古民家リノベーションなど難しい現場も対応。20年以上の施工実績が写真に表れています。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏠</div>
+      <h3>住宅の室内左官、受付中</h3>
+      <p>壁・天井の漆喰・モルタル・塗り壁仕上げ。個人のお客様のご依頼もお気軽にご相談ください。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏗</div>
+      <h3>ゼネコン・工務店・設計事務所の協力業者</h3>
+      <p>大手ゼネコンの左官工事も受注可能。南房総・千葉エリアで対応できる左官職人をお探しの方、ご連絡ください。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 施工事例 -->
+<section class="works" id="works">
+  <h2 class="section-title">施工事例</h2>
+  <p class="section-sub">WORKS</p>
+  <div class="divider"></div>
+
+  <!-- 町場向け -->
+  <div class="works-category">
+    <div class="works-category-label">🏠 住宅・店舗向け</div>
+    <div class="works-grid">
+      <div class="work-item">
+        <img src="images/施工写真/IMG_4896.jpg" alt="店舗内装・珪藻土仕上げ" loading="lazy">
+        <div class="work-label">店舗内装・珪藻土仕上げ</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/IMG_5441.jpg" alt="住宅外構・門柱ジョリパット仕上げ" loading="lazy">
+        <div class="work-label">住宅外構・門柱ジョリパット仕上げ</div>
+      </div>
+      <div class="work-item">
+        <img src="images/work02.jpg" alt="新築漆喰仕上げ" loading="lazy">
+        <div class="work-label">新築・漆喰仕上げ</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/IMG_5592.jpg" alt="古民家改修・漆喰仕上げ" loading="lazy">
+        <div class="work-label">古民家改修・漆喰仕上げ</div>
+      </div>
+      <div class="work-item">
+        <img src="images/work04.jpg" alt="新築珪藻土仕上げ" loading="lazy">
+        <div class="work-label">新築・珪藻土仕上げ</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/IMG_6814.jpg" alt="宿泊施設・大浴場そとん壁仕上げ" loading="lazy">
+        <div class="work-label">大浴場・そとん壁仕上げ</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/IMG_2912.jpg" alt="新築・玄関土壁塗り" loading="lazy">
+        <div class="work-label">新築・玄関土壁塗り</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 野丁場向け -->
+  <div class="works-category">
+    <div class="works-category-label">🏗 建設会社・工務店向け</div>
+    <div class="works-grid">
+      <div class="work-item">
+        <img src="images/work01.jpg" alt="大型施設ドーム型客室モルタル下地施工" loading="lazy">
+        <div class="work-label">ドーム型施設・モルタル下地</div>
+      </div>
+      <div class="work-item">
+        <img src="images/work08.jpg" alt="野丁場階段モルタル施工" loading="lazy">
+        <div class="work-label">野丁場・階段モルタル施工</div>
+      </div>
+      <div class="work-item">
+        <img src="images/work06.jpg" alt="大型施設玄関土間モルタル均し" loading="lazy">
+        <div class="work-label">改修工事・土間モルタル均し</div>
+      </div>
+      <div class="work-item">
+        <img src="images/pro01.jpg" alt="大型建物外壁モルタル施工" loading="lazy">
+        <div class="work-label">外壁モルタル</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/855963AE-B02A-41A0-8E13-9A03ECF8C2DD.JPG" alt="ゼネコン工事・ベランダ土間補修" loading="lazy">
+        <div class="work-label">ゼネコン工事・ベランダ土間補修</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 作業風景 -->
+  <div class="works-category">
+    <div class="works-category-label">🔨 現場から・作業風景</div>
+    <div class="works-grid">
+      <div class="work-item">
+        <img src="images/施工写真/IMG_5343.jpg" alt="住宅内装・曲面アーチモルタル施工中" loading="lazy">
+        <div class="work-label">ドーム型施設・曲面アーチ施工中</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/IMG_0816.jpg" alt="大型現場・外壁モルタル施工中" loading="lazy">
+        <div class="work-label">外壁モルタル施工中</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/IMG_8007.jpg" alt="玄関土間モルタル均し作業" loading="lazy">
+        <div class="work-label">玄関土間・均し作業</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/IMG_8917.jpg" alt="外壁モルタル・型枠施工中" loading="lazy">
+        <div class="work-label">外壁モルタル・型枠施工中</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- サービス -->
+<section class="services" id="services">
+  <h2 class="section-title">対応工事</h2>
+  <p class="section-sub">SERVICES</p>
+  <div class="divider" style="background:rgba(255,255,255,0.3)"></div>
+  <div class="services-grid">
+    <div class="service-item">
+      <h3>🏠 内装左官工事</h3>
+      <p>壁・天井の漆喰・モルタル・珪藻土仕上げ。住宅・店舗・大型物件、どちらも対応します。</p>
+    </div>
+    <div class="service-item">
+      <h3>🏚 外壁左官工事</h3>
+      <p>モルタル・漆喰・吹付けなど外壁の塗り壁全般。下地処理から仕上げまで一貫対応。</p>
+    </div>
+    <div class="service-item">
+      <h3>🔧 補修・リフォーム</h3>
+      <p>ひび割れ・欠損の補修、塗り替えなど。部分補修から全面改修まで対応します。</p>
+    </div>
+    <div class="service-item">
+      <h3>🪵 土間・基礎工事</h3>
+      <p>コンクリート土間打ち・モルタル均し。ガレージ・駐車場・大型施設の床面など。</p>
+    </div>
+    <div class="service-item">
+      <h3>🏗 ゼネコン・大型物件</h3>
+      <p>建設会社・工務店からの協力業者としてのご依頼も歓迎。現場規模に応じてご相談ください。</p>
+    </div>
+    <div class="service-item">
+      <h3>📋 その他・ご相談</h3>
+      <p>上記以外の左官工事もお気軽にお問い合わせください。対応可能な範囲をご案内します。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 対応エリア -->
+<section class="area" id="area">
+  <h2 class="section-title">対応エリア</h2>
+  <p class="section-sub">AREA</p>
+  <div class="divider"></div>
+  <div class="area-tags">
+    <span class="area-tag main">内房エリア</span>
+    <span class="area-tag main">外房エリア</span>
+    <span class="area-tag main">千葉南エリア</span>
+    <span class="area-tag">都内近郊（要相談）</span>
+  </div>
+  <p class="area-note">※エリア外もご相談ください。現場・規模によって対応可能です。</p>
+</section>
+
+<!-- 会社概要 -->
+<section class="about" id="about">
+  <div style="max-width:700px;margin:0 auto;">
+    <h2 class="section-title">会社概要</h2>
+    <p class="section-sub">COMPANY</p>
+    <div class="divider"></div>
+    <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;margin-bottom:8px;">
+      <div style="display:flex;flex-direction:column;gap:12px;flex-shrink:0;">
+        <img src="images/施工写真/IMG_0775.jpg" alt="代表・小西聡" style="width:180px;height:160px;object-fit:cover;object-position:50% 80%;border-radius:8px;">
+        <img src="images/work05.jpg" alt="施工作業中" style="width:180px;height:160px;object-fit:cover;object-position:top;border-radius:8px;">
+      </div>
+      <table style="flex:1;min-width:200px;width:100%;border-collapse:collapse;font-size:15px;line-height:2;">
+      <tr style="border-bottom:1px solid #e0ddd6;">
+        <th style="width:30%;text-align:left;padding:14px 8px;color:#8B6914;font-weight:700;white-space:nowrap;">屋号</th>
+        <td style="padding:14px 8px;">万波屋左官店</td>
+      </tr>
+      <tr style="border-bottom:1px solid #e0ddd6;">
+        <th style="text-align:left;padding:14px 8px;color:#8B6914;font-weight:700;">代表者</th>
+        <td style="padding:14px 8px;">小西 聡（こにし さとし）</td>
+      </tr>
+      <tr style="border-bottom:1px solid #e0ddd6;">
+        <th style="text-align:left;padding:14px 8px;color:#8B6914;font-weight:700;">所在地</th>
+        <td style="padding:14px 8px;">千葉県君津市</td>
+      </tr>
+      <tr style="border-bottom:1px solid #e0ddd6;">
+        <th style="text-align:left;padding:14px 8px;color:#8B6914;font-weight:700;">業種</th>
+        <td style="padding:14px 8px;">左官工事業</td>
+      </tr>
+      <tr>
+        <th style="text-align:left;padding:14px 8px;color:#8B6914;font-weight:700;">対応エリア</th>
+        <td style="padding:14px 8px;">千葉県全域・都内近郊（要相談）</td>
+      </tr>
+    </table>
+    </div>
+    <div style="margin-top:32px;padding:24px;background:#f9f7f2;border-radius:8px;border-left:3px solid #8B6914;">
+      <p style="font-size:14px;font-weight:700;color:#8B6914;margin-bottom:8px;">屋号「万波屋」について</p>
+      <p style="font-size:14px;color:#555;line-height:1.9;">「万波」とは、幾重にも寄せ来る波、広大な海を意味する言葉です。波のように力強く・しなやかに、一つひとつの現場と向き合う職人でありたい——そんな想いを込めた屋号です。</p>
+    </div>
+  </div>
+</section>
+
+<!-- お問い合わせ -->
+<section class="contact" id="contact">
+  <div class="contact-inner">
+    <h2 class="section-title">お問い合わせ</h2>
+    <p class="section-sub">CONTACT</p>
+    <div class="divider"></div>
+    <p style="text-align:center;font-size:14px;color:#666;margin-bottom:32px">
+      現地確認・お見積りは無料です。お気軽にご相談ください。<br>
+      通常2営業日以内にご返信いたします。
+    </p>
+
+    <!-- Formspree：送信先メールを設定後にaction URLを更新してください -->
+    <form action="https://formspree.io/f/mrervrbq" method="POST">
+      <div class="form-group">
+        <label>お名前<span class="required">必須</span></label>
+        <input type="text" name="name" placeholder="山田 太郎" required>
+      </div>
+      <div class="form-group">
+        <label>メールアドレス<span class="required">必須</span></label>
+        <input type="email" name="email" placeholder="example@email.com" required>
+      </div>
+      <div class="form-group">
+        <label>電話番号</label>
+        <input type="tel" name="tel" placeholder="090-1234-5678">
+      </div>
+      <div class="form-group">
+        <label>お問い合わせ種別<span class="required">必須</span></label>
+        <select name="type" required>
+          <option value="">選択してください</option>
+          <option value="見積もり依頼">お見積もり依頼</option>
+          <option value="施工相談">施工内容のご相談</option>
+          <option value="補修・リフォーム">補修・リフォームのご相談</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>工事場所（市区町村）</label>
+        <input type="text" name="location" placeholder="例：君津市〇〇">
+      </div>
+      <div class="form-group">
+        <label>ご相談内容<span class="required">必須</span></label>
+        <textarea name="message" placeholder="どんな小さなことでもお気軽にご相談ください。&#10;例：外壁のひび割れが気になる、玄関タイルを貼り替えたいなど" required></textarea>
+      </div>
+      <input type="hidden" name="_subject" value="【万波屋左官店】お問い合わせが届きました">
+      <input type="text" name="_gotcha" style="display:none">
+      <button type="submit" class="form-submit">送信する</button>
+      <p class="form-note">送信後、自動返信メールをお送りします。迷惑メールフォルダもご確認ください。</p>
+    </form>
+  </div>
+</section>
+
+<!-- フッター -->
+<footer>
+  <strong>万波屋左官店</strong>
+  千葉県君津市｜左官工事一式<br>
+  <small style="margin-top:12px;display:block">© 2026 万波屋左官店 All Rights Reserved.</small>
+</footer>
+
+</body>
+</html>
