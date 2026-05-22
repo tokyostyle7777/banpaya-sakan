@@ -131,31 +131,24 @@
       margin: 12px 0 40px;
     }
 
-    /* ===== 課題セクション ===== */
-    .problems { background: var(--light); }
-    .problems .section-title { color: var(--dark); }
-    .problems-grid {
-      display: grid; grid-template-columns: 1fr;
-      gap: 1px; background: #ddd; border: 1px solid #ddd;
+    /* ===== 自己紹介セクション ===== */
+    .intro { background: var(--light); text-align: center; }
+    .intro .section-title { color: var(--dark); }
+    .intro .section-divider { margin: 12px auto 48px; }
+    .intro-message {
+      max-width: 660px; margin: 0 auto;
     }
-    @media (min-width: 640px) { .problems-grid { grid-template-columns: repeat(3, 1fr); } }
-    .problem-card {
-      background: var(--white); padding: 32px 24px;
-      display: flex; gap: 16px; align-items: flex-start;
-    }
-    .problem-num {
-      font-family: 'Noto Serif JP', serif; font-size: 28px;
-      color: #ddd; line-height: 1; flex-shrink: 0; min-width: 36px;
-    }
-    .problem-body h3 { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 8px; letter-spacing: 0.03em; }
-    .problem-body p { font-size: 12px; color: var(--gray); line-height: 1.9; }
-    .problems-answer {
-      margin-top: 48px; text-align: center;
+    .intro-message p {
       font-family: 'Noto Serif JP', serif;
-      font-size: clamp(16px, 3vw, 22px); color: var(--dark); line-height: 1.7;
-      letter-spacing: 0.05em;
+      font-size: clamp(15px, 2.3vw, 19px);
+      color: var(--dark); line-height: 2.6; letter-spacing: 0.08em;
     }
-    .problems-answer em { font-style: normal; border-bottom: 2px solid var(--dark); padding-bottom: 1px; }
+    .intro-sig {
+      margin-top: 44px;
+      font-family: 'Noto Serif JP', serif;
+      font-size: 13px; color: var(--gray);
+      letter-spacing: 0.22em;
+    }
 
     /* ===== 強みセクション ===== */
     .strengths { background: var(--white); }
@@ -163,14 +156,11 @@
       display: grid; grid-template-columns: 1fr;
       gap: 0; border: 1px solid #ddd;
     }
-    @media (min-width: 640px) { .strengths-grid { grid-template-columns: repeat(2, 1fr); } }
     .strength-card {
       padding: 32px 28px; border-bottom: 1px solid #ddd;
       display: flex; gap: 20px; align-items: flex-start;
     }
-    @media (min-width: 640px) {
-      .strength-card:nth-child(odd) { border-right: 1px solid #ddd; }
-    }
+    .strength-card:last-child { border-bottom: none; }
     .strength-num {
       font-family: 'Noto Serif JP', serif; font-size: 32px;
       color: #e0e0e0; line-height: 1; flex-shrink: 0; min-width: 44px;
@@ -314,7 +304,7 @@
       <em>承ります。</em>
     </h1>
     <p>
-      町場・野丁場・内装・外装・土間仕上げ、どんな現場も対応いたします。<br>
+      大手ゼネコン様から地元の工務店様の内装・外装・土間仕上げ、どんな現場も対応いたします。<br>
       丁寧かつスピーディーに施工。外注・応援もお気軽にご相談ください。
     </p>
     <div class="hero-btns">
@@ -336,43 +326,29 @@
       <div class="stat-label">対応エリア</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num">現場対応</div>
-      <div class="stat-label">ご相談ください</div>
+      <div class="stat-num">15<span class="stat-unit">年</span></div>
+      <div class="stat-label">独立実績</div>
     </div>
   </div>
 </section>
 
-<!-- 課題 -->
-<section class="section problems">
+<!-- 自己紹介 -->
+<section class="section intro">
   <div class="section-inner">
-    <h2 class="section-title">下記のような状況でお困りではございませんか</h2>
-    <div class="section-en">For contractors & builders</div>
-    <div class="problems-grid">
-      <div class="problem-card">
-        <div class="problem-num">01</div>
-        <div class="problem-body">
-          <h3>職人が急なキャンセル</h3>
-          <p>前日・当日のキャンセルで現場の進行に支障が出ている</p>
-        </div>
-      </div>
-      <div class="problem-card">
-        <div class="problem-num">02</div>
-        <div class="problem-body">
-          <h3>信頼できる外注先がない</h3>
-          <p>現場のルールを守り、品質を担保できる職人が見つからない</p>
-        </div>
-      </div>
-      <div class="problem-card">
-        <div class="problem-num">03</div>
-        <div class="problem-body">
-          <h3>繁忙期の人員確保</h3>
-          <p>特定の時期・現場だけ増員が必要だが、継続雇用は難しい</p>
-        </div>
-      </div>
+    <h2 class="section-title">はじめまして</h2>
+    <div class="section-en">About the craftsman</div>
+    <div class="section-divider"></div>
+    <div class="intro-message">
+      <p>
+        各企業様、私は君津在住の左官職人です。<br>
+        15年前に独立し、現在は町場・野丁場と<br>
+        様々な現場にて施工をさせて頂いております。<br><br>
+        各案件に関しまして常用・請負にて<br>
+        誠実かつスピーディーに対応させて頂きますので、<br>
+        お気軽にご相談下さい。
+      </p>
     </div>
-    <div class="problems-answer">
-      そのご要望に、<em>万波屋左官店</em>が対応いたします。
-    </div>
+    <div class="intro-sig">万波屋左官店 ／ 小西 聡</div>
   </div>
 </section>
 
@@ -380,13 +356,13 @@
 <section class="section strengths">
   <div class="section-inner">
     <h2 class="section-title">万波屋左官店について</h2>
-    <div class="section-en">About us</div>
+    <div class="section-en">Features</div>
     <div class="strengths-grid">
       <div class="strength-card">
         <div class="strength-num">01</div>
         <div class="strength-body">
           <h3>50社以上の施工実績</h3>
-          <p>野丁場から内装仕上げまで幅広く対応。漆喰・モルタル・ジョリパット等、豊富な施工実績がございます。</p>
+          <p>大手ゼネコン様から地元の工務店様の細かな案件まで対応。漆喰・モルタル工事・ジョリパット仕上げなど豊富な施工実績がございます。</p>
         </div>
       </div>
       <div class="strength-card">
@@ -399,15 +375,15 @@
       <div class="strength-card">
         <div class="strength-num">03</div>
         <div class="strength-body">
-          <h3>千葉・都内近郊に対応</h3>
-          <p>君津市を拠点に、木更津・市原・東京方面まで対応。急な応援依頼にも柔軟にご対応いたします。</p>
+          <h3>千葉県・都内近郊に対応</h3>
+          <p>君津市を拠点に、千葉県内・都内近郊の現場にて施工いたします。遠方の場合はご相談下さい。</p>
         </div>
       </div>
       <div class="strength-card">
         <div class="strength-num">04</div>
         <div class="strength-body">
-          <h3>複数名の手配もご相談可</h3>
-          <p>一人親方としての参加はもちろん、協力業者との連携により複数名の手配にも対応可能です。</p>
+          <h3>CCUS対応</h3>
+          <p>建設キャリアアップシステム（CCUS）登録済みのため、CCUS必須現場にも安心してご依頼いただけます。</p>
         </div>
       </div>
     </div>
@@ -492,44 +468,19 @@
   </div>
 </section>
 
-<!-- FAQ -->
-<section class="section faq">
-  <div class="section-inner">
-    <h2 class="section-title">よくあるご質問</h2>
-    <div class="section-en">FAQ</div>
-    <div class="faq-list">
-      <div class="faq-item">
-        <div class="faq-q"><span class="faq-q-mark">Q</span>急なご依頼にも対応いただけますか？</div>
-        <div class="faq-a">可能な限り対応いたします。前日・当日のご相談もまずはお問い合わせください。スケジュール状況を確認の上、速やかにご返答いたします。</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q"><span class="faq-q-mark">Q</span>1日・短期からご依頼いただけますか？</div>
-        <div class="faq-a">はい、1日単位からご依頼いただけます。継続的なお取引でも、スポットでの応援でも柔軟に対応いたします。</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q"><span class="faq-q-mark">Q</span>費用はどのようになりますか？</div>
-        <div class="faq-a">現場の内容・エリア・人数・期間によって異なります。まずはお問い合わせください。お見積りは無料です。</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q"><span class="faq-q-mark">Q</span>一人親方労災保険には加入されていますか？</div>
-        <div class="faq-a">はい、一人親方労災保険（RJC）に加入しております。安心してご発注ください。</div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- CTA -->
 <section class="cta-section" id="contact">
   <h2>お問い合わせ・ご相談</h2>
   <p>
-    現場の状況・必要な人数・工期など、まずはお気軽にお問い合わせください。<br>
+    施工内容・エリア・工期など、まずはお気軽にお問い合わせください。<br>
     お見積りは無料。メールにてご返答いたします。
   </p>
   <a href="mailto:banpayasakan@gmail.com?subject=左官工事のご依頼について&body=【現場の場所】%0A【作業内容】%0A【希望日程】%0A【必要人数】%0A【その他】" class="btn-cta">
     メールでお問い合わせ
   </a>
   <div class="cta-info">
-    万波屋左官店 ／ 千葉県君津市 ／ banpayasakan@gmail.com
+    万波屋左官店 ／ banpayasakan@gmail.com
   </div>
 </section>
 
@@ -537,7 +488,6 @@
 <footer>
   <p>
     <a href="/">万波屋左官店 トップページ</a> ／
-    千葉県君津市下湯江188-1 ／
     <a href="mailto:banpayasakan@gmail.com">banpayasakan@gmail.com</a>
   </p>
   <p style="margin-top:8px;">© 2026 万波屋左官店</p>
