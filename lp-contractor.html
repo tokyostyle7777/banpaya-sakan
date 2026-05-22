@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>左官工事の外注・応援承ります｜万波屋左官店｜千葉・都内近郊</title>
+  <meta name="description" content="千葉・都内近郊の建設会社・工務店様へ。50社以上の施工実績を持つ左官職人が野丁場・仕上げ工事に対応。外注・応援もご相談ください。万波屋左官店（君津市）">
+  <meta name="keywords" content="左官職人 外注,左官 応援,千葉 左官,都内近郊 左官,野丁場,左官工事 建設会社,左官職人 手配">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:  #000000;
+      --dark:   #111111;
+      --mid:    #222222;
+      --border: #333333;
+      --gray:   #888888;
+      --silver: #cccccc;
+      --white:  #ffffff;
+      --light:  #f4f4f4;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Noto Sans JP', sans-serif; color: var(--dark); background: #fff; line-height: 1.7; }
+
+    /* ===== ヘッダー ===== */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--black);
+      padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      color: var(--white); font-family: 'Noto Serif JP', serif;
+      font-size: clamp(13px, 3vw, 17px); font-weight: 700;
+      letter-spacing: 0.08em; text-decoration: none;
+    }
+    .logo span { font-size: 9px; color: var(--gray); display: block; letter-spacing: 0.2em; margin-top: 2px; }
+    .header-cta {
+      border: 1px solid var(--white); color: var(--white);
+      text-decoration: none; padding: 8px 18px; font-size: 12px;
+      font-weight: 700; white-space: nowrap; letter-spacing: 0.05em;
+      transition: background 0.2s, color 0.2s;
+    }
+    .header-cta:hover { background: var(--white); color: var(--black); }
+
+    /* ===== ヒーロー ===== */
+    .hero {
+      position: relative; min-height: 88vh;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--black); overflow: hidden;
+      text-align: center; padding: 80px 24px 60px;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('images/hero.jpg');
+      background-size: cover; background-position: center; opacity: 0.22;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 720px; }
+    .hero-label {
+      display: inline-block; border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.6); font-size: 11px;
+      letter-spacing: 0.25em; padding: 5px 20px; margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(28px, 6vw, 52px);
+      color: var(--white); line-height: 1.45; margin-bottom: 24px;
+      letter-spacing: 0.03em;
+    }
+    .hero h1 em { color: var(--silver); font-style: normal; border-bottom: 1px solid var(--gray); padding-bottom: 2px; }
+    .hero p {
+      color: rgba(255,255,255,0.65);
+      font-size: clamp(13px, 2vw, 15px);
+      margin-bottom: 40px; line-height: 2.0; letter-spacing: 0.05em;
+    }
+    .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--white); color: var(--black);
+      padding: 16px 36px; text-decoration: none; font-weight: 700;
+      font-size: clamp(13px, 2vw, 15px); letter-spacing: 0.05em;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-secondary {
+      background: transparent; color: var(--white);
+      border: 1px solid rgba(255,255,255,0.4); padding: 16px 36px;
+      text-decoration: none; font-weight: 700;
+      font-size: clamp(13px, 2vw, 15px); letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--white); background: rgba(255,255,255,0.05); }
+
+    /* ===== 数字バー ===== */
+    .stats { background: var(--dark); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      max-width: 720px; margin: 0 auto;
+    }
+    .stat-item {
+      text-align: center; padding: 28px 12px;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(16px, 3vw, 22px); font-weight: 700;
+      color: var(--silver); line-height: 1.2;
+    }
+    .stat-unit { font-size: 11px; color: var(--gray); }
+    .stat-label { font-size: 11px; color: var(--gray); margin-top: 6px; letter-spacing: 0.08em; }
+
+    /* ===== セクション共通 ===== */
+    .section { padding: 80px 24px; }
+    .section-inner { max-width: 900px; margin: 0 auto; }
+    .section-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(20px, 3.5vw, 28px); margin-bottom: 6px;
+      color: var(--dark); letter-spacing: 0.05em;
+    }
+    .section-en {
+      font-size: 11px; color: var(--gray); letter-spacing: 0.2em;
+      margin-bottom: 48px; text-transform: uppercase;
+    }
+    .section-divider {
+      width: 32px; height: 1px; background: var(--dark);
+      margin: 12px 0 40px;
+    }
+
+    /* ===== 課題セクション ===== */
+    .problems { background: var(--light); }
+    .problems .section-title { color: var(--dark); }
+    .problems-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 1px; background: #ddd; border: 1px solid #ddd;
+    }
+    @media (min-width: 640px) { .problems-grid { grid-template-columns: repeat(3, 1fr); } }
+    .problem-card {
+      background: var(--white); padding: 32px 24px;
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .problem-num {
+      font-family: 'Noto Serif JP', serif; font-size: 28px;
+      color: #ddd; line-height: 1; flex-shrink: 0; min-width: 36px;
+    }
+    .problem-body h3 { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 8px; letter-spacing: 0.03em; }
+    .problem-body p { font-size: 12px; color: var(--gray); line-height: 1.9; }
+    .problems-answer {
+      margin-top: 48px; text-align: center;
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(16px, 3vw, 22px); color: var(--dark); line-height: 1.7;
+      letter-spacing: 0.05em;
+    }
+    .problems-answer em { font-style: normal; border-bottom: 2px solid var(--dark); padding-bottom: 1px; }
+
+    /* ===== 強みセクション ===== */
+    .strengths { background: var(--white); }
+    .strengths-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 0; border: 1px solid #ddd;
+    }
+    @media (min-width: 640px) { .strengths-grid { grid-template-columns: repeat(2, 1fr); } }
+    .strength-card {
+      padding: 32px 28px; border-bottom: 1px solid #ddd;
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    @media (min-width: 640px) {
+      .strength-card:nth-child(odd) { border-right: 1px solid #ddd; }
+    }
+    .strength-num {
+      font-family: 'Noto Serif JP', serif; font-size: 32px;
+      color: #e0e0e0; line-height: 1; flex-shrink: 0; min-width: 44px;
+    }
+    .strength-body h3 { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 8px; letter-spacing: 0.03em; }
+    .strength-body p { font-size: 12px; color: var(--gray); line-height: 1.9; }
+
+    /* ===== 施工実績 ===== */
+    .works { background: var(--light); }
+    .works-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+    }
+    @media (min-width: 640px) { .works-grid { grid-template-columns: repeat(3, 1fr); } }
+    .work-item {
+      position: relative; aspect-ratio: 1; overflow: hidden; background: #ddd;
+    }
+    .work-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; display: block; }
+    .work-item:hover img { transform: scale(1.04); }
+    .work-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.75));
+      color: var(--white); font-size: 11px; letter-spacing: 0.05em;
+      padding: 20px 10px 10px;
+    }
+
+    /* ===== 対応エリア ===== */
+    .area { background: var(--dark); color: var(--white); }
+    .area .section-title { color: var(--white); }
+    .area .section-en { color: var(--gray); }
+    .area .section-divider { background: var(--border); }
+    .area-layout {
+      display: grid; grid-template-columns: 1.6fr 1fr;
+      gap: 2px; background: var(--border);
+      border: 1px solid var(--border);
+    }
+    @media (max-width: 640px) { .area-layout { grid-template-columns: 1fr; } }
+    #area-map {
+      width: 100%; height: 400px; background: #111;
+      display: block;
+    }
+    @media (max-width: 640px) { #area-map { height: 280px; } }
+    .area-list-col {
+      background: var(--mid); padding: 24px 20px;
+      display: flex; flex-direction: column; justify-content: center; gap: 0;
+    }
+    .area-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 0; border-bottom: 1px solid var(--border);
+    }
+    .area-item:last-child { border-bottom: none; }
+    .area-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gray); flex-shrink: 0;
+    }
+    .area-item.primary .area-dot {
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
+    }
+    .area-name {
+      font-size: 13px; font-weight: 700; color: var(--silver);
+      letter-spacing: 0.05em; margin-bottom: 3px;
+    }
+    .area-item.primary .area-name { color: var(--white); }
+    .area-desc { font-size: 11px; color: var(--gray); line-height: 1.5; }
+    .area-note { font-size: 11px; color: var(--gray); margin-top: 20px; letter-spacing: 0.03em; }
+    .area-nationwide {
+      margin-top: 20px; padding: 14px 16px;
+      border: 1px solid var(--border);
+      font-size: 12px; color: var(--gray); letter-spacing: 0.05em;
+    }
+    .area-nationwide strong { color: var(--silver); display: block; font-size: 13px; margin-bottom: 3px; }
+    /* Leaflet override */
+    .leaflet-container { background: #111 !important; }
+    .leaflet-tile-pane { opacity: 1; }
+
+    /* ===== FAQ ===== */
+    .faq { background: var(--white); }
+    .faq-list { max-width: 720px; margin: 0 auto; border: 1px solid #ddd; }
+    .faq-item { border-bottom: 1px solid #ddd; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { padding: 20px 24px; font-size: 14px; font-weight: 700; display: flex; gap: 12px; align-items: flex-start; letter-spacing: 0.03em; }
+    .faq-q-mark { color: var(--gray); font-family: 'Noto Serif JP', serif; font-size: 18px; flex-shrink: 0; }
+    .faq-a { padding: 0 24px 20px 52px; font-size: 13px; color: var(--gray); line-height: 1.9; }
+
+    /* ===== CTA ===== */
+    .cta-section { background: var(--black); padding: 80px 24px; text-align: center; border-top: 1px solid var(--border); }
+    .cta-section h2 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(20px, 3.5vw, 30px); color: var(--white);
+      margin-bottom: 12px; line-height: 1.6; letter-spacing: 0.05em;
+    }
+    .cta-section p { color: var(--gray); font-size: 13px; margin-bottom: 40px; line-height: 1.9; }
+    .btn-cta {
+      display: inline-block; background: var(--white); color: var(--black);
+      padding: 18px 48px; font-weight: 700; font-size: 15px;
+      letter-spacing: 0.08em; text-decoration: none; transition: opacity 0.2s;
+    }
+    .btn-cta:hover { opacity: 0.85; }
+    .cta-info { margin-top: 28px; font-size: 12px; color: var(--gray); }
+
+    /* ===== フッター ===== */
+    footer {
+      background: var(--dark); color: var(--gray); padding: 24px;
+      text-align: center; font-size: 12px; border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--gray); text-decoration: none; }
+    footer a:hover { color: var(--white); }
+
+    /* ===== 固定CTAバー（SP） ===== */
+    .fixed-cta {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    }
+    @media (min-width: 768px) { .fixed-cta { display: none; } }
+    .fixed-cta a {
+      display: block; width: 100%; padding: 16px;
+      text-align: center; font-weight: 700; font-size: 14px;
+      text-decoration: none; letter-spacing: 0.08em;
+      background: var(--white); color: var(--black);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header>
+  <a href="/" class="logo">
+    万波屋左官店
+    <span>BANPAYA SAKAN</span>
+  </a>
+  <a href="#contact" class="header-cta">お問い合わせ</a>
+</header>
+
+<!-- ヒーロー -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-label">建設会社・工務店様へ ／ 千葉・都内近郊</div>
+    <h1>
+      左官工事の外注・応援、<br>
+      <em>承ります。</em>
+    </h1>
+    <p>
+      町場・野丁場・内装・外装・土間仕上げ、どんな現場も対応いたします。<br>
+      丁寧かつスピーディーに施工。外注・応援もお気軽にご相談ください。
+    </p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">お問い合わせはこちら</a>
+      <a href="#works" class="btn-secondary">施工実績を見る</a>
+    </div>
+  </div>
+</section>
+
+<!-- 数字バー -->
+<section class="stats">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-num">50<span class="stat-unit">社以上</span></div>
+      <div class="stat-label">施工実績</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">千葉<span class="stat-unit">・都内近郊</span></div>
+      <div class="stat-label">対応エリア</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">現場対応</div>
+      <div class="stat-label">ご相談ください</div>
+    </div>
+  </div>
+</section>
+
+<!-- 課題 -->
+<section class="section problems">
+  <div class="section-inner">
+    <h2 class="section-title">下記のような状況でお困りではございませんか</h2>
+    <div class="section-en">For contractors & builders</div>
+    <div class="problems-grid">
+      <div class="problem-card">
+        <div class="problem-num">01</div>
+        <div class="problem-body">
+          <h3>職人が急なキャンセル</h3>
+          <p>前日・当日のキャンセルで現場の進行に支障が出ている</p>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">02</div>
+        <div class="problem-body">
+          <h3>信頼できる外注先がない</h3>
+          <p>現場のルールを守り、品質を担保できる職人が見つからない</p>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">03</div>
+        <div class="problem-body">
+          <h3>繁忙期の人員確保</h3>
+          <p>特定の時期・現場だけ増員が必要だが、継続雇用は難しい</p>
+        </div>
+      </div>
+    </div>
+    <div class="problems-answer">
+      そのご要望に、<em>万波屋左官店</em>が対応いたします。
+    </div>
+  </div>
+</section>
+
+<!-- 強み -->
+<section class="section strengths">
+  <div class="section-inner">
+    <h2 class="section-title">万波屋左官店について</h2>
+    <div class="section-en">About us</div>
+    <div class="strengths-grid">
+      <div class="strength-card">
+        <div class="strength-num">01</div>
+        <div class="strength-body">
+          <h3>50社以上の施工実績</h3>
+          <p>野丁場から内装仕上げまで幅広く対応。漆喰・モルタル・ジョリパット等、豊富な施工実績がございます。</p>
+        </div>
+      </div>
+      <div class="strength-card">
+        <div class="strength-num">02</div>
+        <div class="strength-body">
+          <h3>現場ルールの徹底遵守</h3>
+          <p>安全管理・作業報告・コミュニケーションを徹底いたします。安心してお任せください。</p>
+        </div>
+      </div>
+      <div class="strength-card">
+        <div class="strength-num">03</div>
+        <div class="strength-body">
+          <h3>千葉・都内近郊に対応</h3>
+          <p>君津市を拠点に、木更津・市原・東京方面まで対応。急な応援依頼にも柔軟にご対応いたします。</p>
+        </div>
+      </div>
+      <div class="strength-card">
+        <div class="strength-num">04</div>
+        <div class="strength-body">
+          <h3>複数名の手配もご相談可</h3>
+          <p>一人親方としての参加はもちろん、協力業者との連携により複数名の手配にも対応可能です。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 施工実績 -->
+<section class="section works" id="works">
+  <div class="section-inner">
+    <h2 class="section-title">施工実績</h2>
+    <div class="section-en">Works</div>
+    <div class="works-grid">
+      <div class="work-item">
+        <img src="images/施工写真/18FB423F-6D0C-49D8-9032-4A5A8EE71935.JPG" alt="土間化粧 エクランEX仕上げ" loading="lazy">
+        <div class="work-label">土間化粧 エクランEX仕上げ</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/53530140.de89da9c8502c3771e951cc1e361f223.20101208.jpg" alt="土間改修" loading="lazy">
+        <div class="work-label">土間改修</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/855963AE-B02A-41A0-8E13-9A03ECF8C2DD.JPG" alt="土間レベラー" loading="lazy">
+        <div class="work-label">土間レベラー</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/F2102156-6836-4DD7-8808-296EB9294752.JPG" alt="階段成形" loading="lazy">
+        <div class="work-label">階段成形</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/IMG_3477.JPG" alt="店舗内装 珪藻土" loading="lazy">
+        <div class="work-label">店舗内装 珪藻土</div>
+      </div>
+      <div class="work-item">
+        <img src="images/施工写真/IMG_6816.jpg" alt="大浴場 そとん壁" loading="lazy">
+        <div class="work-label">大浴場 そとん壁</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 対応エリア -->
+<section class="section area">
+  <div class="section-inner">
+    <h2 class="section-title">対応エリア</h2>
+    <div class="section-en">Service area</div>
+    <div class="section-divider"></div>
+
+    <div class="area-layout">
+      <!-- 左：Leaflet地図 -->
+      <div id="area-map"></div>
+
+      <!-- 右：エリアリスト -->
+      <div class="area-list-col">
+        <div class="area-item primary">
+          <div class="area-dot"></div>
+          <div>
+            <div class="area-name">千葉エリア</div>
+            <div class="area-desc">君津・木更津・南房総・千葉市<br>市原・いすみ・八街ほか</div>
+          </div>
+        </div>
+        <div class="area-item">
+          <div class="area-dot"></div>
+          <div>
+            <div class="area-name">都内近郊エリア</div>
+            <div class="area-desc">東京23区・川崎・川口方面</div>
+          </div>
+        </div>
+        <div class="area-item">
+          <div class="area-dot"></div>
+          <div>
+            <div class="area-name">神奈川エリア</div>
+            <div class="area-desc">横浜・川崎ほか</div>
+          </div>
+        </div>
+        <div class="area-nationwide">
+          <strong>全国出張対応可</strong>
+          交通費・宿泊費は別途相談
+        </div>
+      </div>
+    </div>
+    <p class="area-note">※ エリア外のご依頼もお気軽にお問い合わせください。</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq">
+  <div class="section-inner">
+    <h2 class="section-title">よくあるご質問</h2>
+    <div class="section-en">FAQ</div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q"><span class="faq-q-mark">Q</span>急なご依頼にも対応いただけますか？</div>
+        <div class="faq-a">可能な限り対応いたします。前日・当日のご相談もまずはお問い合わせください。スケジュール状況を確認の上、速やかにご返答いたします。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span class="faq-q-mark">Q</span>1日・短期からご依頼いただけますか？</div>
+        <div class="faq-a">はい、1日単位からご依頼いただけます。継続的なお取引でも、スポットでの応援でも柔軟に対応いたします。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span class="faq-q-mark">Q</span>費用はどのようになりますか？</div>
+        <div class="faq-a">現場の内容・エリア・人数・期間によって異なります。まずはお問い合わせください。お見積りは無料です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span class="faq-q-mark">Q</span>一人親方労災保険には加入されていますか？</div>
+        <div class="faq-a">はい、一人親方労災保険（RJC）に加入しております。安心してご発注ください。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <h2>お問い合わせ・ご相談</h2>
+  <p>
+    現場の状況・必要な人数・工期など、まずはお気軽にお問い合わせください。<br>
+    お見積りは無料。メールにてご返答いたします。
+  </p>
+  <a href="mailto:banpayasakan@gmail.com?subject=左官工事のご依頼について&body=【現場の場所】%0A【作業内容】%0A【希望日程】%0A【必要人数】%0A【その他】" class="btn-cta">
+    メールでお問い合わせ
+  </a>
+  <div class="cta-info">
+    万波屋左官店 ／ 千葉県君津市 ／ banpayasakan@gmail.com
+  </div>
+</section>
+
+<!-- フッター -->
+<footer>
+  <p>
+    <a href="/">万波屋左官店 トップページ</a> ／
+    千葉県君津市下湯江188-1 ／
+    <a href="mailto:banpayasakan@gmail.com">banpayasakan@gmail.com</a>
+  </p>
+  <p style="margin-top:8px;">© 2026 万波屋左官店</p>
+</footer>
+
+<!-- 固定CTAバー（スマホ） -->
+<div class="fixed-cta">
+  <a href="mailto:banpayasakan@gmail.com?subject=左官工事のご依頼について&body=【現場の場所】%0A【作業内容】%0A【希望日程】%0A【必要人数】%0A【その他】">
+    メールでお問い合わせ
+  </a>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function() {
+  var map = L.map('area-map', {
+    center: [35.42, 139.88],
+    zoom: 9,
+    scrollWheelZoom: false,
+    zoomControl: false,
+    attributionControl: false,
+    dragging: false,
+    touchZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 15,
+    subdomains: 'abcd'
+  }).addTo(map);
+
+  /* 千葉エリア統合 ── 南房総〜八街・いすみまで（成田は含まない） */
+  L.circle([35.33, 140.12], {
+    radius: 44000,
+    color: '#ffffff', fillColor: '#ffffff',
+    fillOpacity: 0.11, weight: 1.5, opacity: 0.7
+  }).addTo(map);
+
+  /* 都内近郊 ── 東京23区中心・埼玉は川口あたりまで */
+  L.circle([35.68, 139.70], {
+    radius: 18000,
+    color: '#aaaaaa', fillColor: '#aaaaaa',
+    fillOpacity: 0.09, weight: 1, opacity: 0.55
+  }).addTo(map);
+
+  /* 神奈川 ── 横浜・川崎中心（西湘は含まない） */
+  L.circle([35.46, 139.63], {
+    radius: 16000,
+    color: '#aaaaaa', fillColor: '#aaaaaa',
+    fillOpacity: 0.09, weight: 1, opacity: 0.55
+  }).addTo(map);
+
+  /* 拠点マーカー（君津） */
+  var baseIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:10px;height:10px;background:#fff;border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,0.2),0 0 14px rgba(255,255,255,0.6);"></div>',
+    iconSize: [10, 10],
+    iconAnchor: [5, 5]
+  });
+  L.marker([35.23, 139.92], { icon: baseIcon }).addTo(map);
+})();
+</script>
+</body>
+</html>
