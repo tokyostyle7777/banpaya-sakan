@@ -95,6 +95,15 @@ canvas#tideChart{width:100%!important;display:block}
 .fc-table tr:nth-child(even) td{background:#f8fbff}
 .fc-now td{background:#fff3cd!important}
 .fc-wind-arrow{display:inline-block;font-size:16px}
+/* BCM風 横スクロール予報 */
+.bcm-wrap{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;background:#fff;border-bottom:1px solid #e0e0e0}
+.bcm-labels{position:sticky;left:0;background:#f8f9fa;z-index:2;flex-shrink:0;width:38px;border-right:1px solid #d8dde3;font-size:10px;color:#667;font-weight:700}
+.bcm-col{flex-shrink:0;width:62px;text-align:center;border-right:1px solid #f0f2f5}
+.bcm-col.now{background:#eaf3ff}
+.bcm-cell{display:flex;align-items:center;justify-content:center;border-bottom:1px solid #f5f6f8}
+.bcm-bar-area{position:relative;background:linear-gradient(180deg,#ddeafe 0%,#cfe2fb 100%)}
+.bcm-bar{position:absolute;bottom:0;left:0;right:0;background:#2f6db5}
+.wt-badge{font-size:9px;font-weight:800;color:#fff;border-radius:3px;padding:2px 3px;line-height:1.2;display:inline-block}
 .fc-wh{font-weight:700;color:#5b8ab8}
 
 /* カメラセクション */
@@ -941,6 +950,17 @@ function drawTideChart(now) {
   ctx.fillStyle = grad;
   ctx.fill();
 
+  // 夜の時間帯に影（日出前・日入後）
+  const srD = DATA?.weather?.daily?.sunrise?.[0] ? new Date(DATA.weather.daily.sunrise[0]) : null;
+  const ssD = DATA?.weather?.daily?.sunset?.[0]  ? new Date(DATA.weather.daily.sunset[0])  : null;
+  if (srD && ssD) {
+    const frac = d => (d.getHours()*60 + d.getMinutes()) / (24*60);
+    const xAt  = f => PAD.l + f * (W - PAD.l - PAD.r);
+    ctx.fillStyle = 'rgba(100,120,150,0.16)';
+    ctx.fillRect(PAD.l, PAD.t, xAt(frac(srD)) - PAD.l, H - PAD.t - PAD.b);
+    ctx.fillRect(xAt(frac(ssD)), PAD.t, W - PAD.r - xAt(frac(ssD)), H - PAD.t - PAD.b);
+  }
+
   // ライン
   ctx.beginPath();
   ctx.strokeStyle = '#5b8ab8';
@@ -1022,10 +1042,19 @@ function renderForecast() {
   const wcodes = DATA.weather.hourly?.weather_code ?? [];
   const now    = new Date();
 
+  // BCM風：横スクロールの時間カラム
+  const ROWS = [['時刻',26],['天気',26],['気温',20],['風速',20],['風向',56],['波高',96],['周期',20],['波向',34]];
+  const labelCol = ROWS.map(([l,h]) => `<div class="bcm-cell" style="height:${h}px">${l}</div>`).join('');
+  const wtColor = { on:'#e74c3c', sideon:'#f5a623', sideoff:'#7cb342', off:'#00b359' };
+
   let html = '';
   let lastDate = '';
-  let rows = '';
+  let cols = '';
   const step = FC_INTERVAL;
+  const flush = () => {
+    if (cols) html += `<div class="bcm-wrap"><div class="bcm-labels">${labelCol}</div>${cols}</div>`;
+    cols = '';
+  };
 
   for (let i = 0; i < Math.min(times.length, 96); i++) {
     if (i % step !== 0) continue;
@@ -1044,25 +1073,44 @@ function renderForecast() {
     const ddeg = wdirh[i] ?? 0;
     const wc   = wcodes[i] ?? 0;
     const isNow= t.getHours()===now.getHours() && t.getDate()===now.getDate();
+    const wt   = windType(ddeg, SPOT.facing);
 
     if (dateStr !== lastDate) {
-      if (rows) html += `<div class="fc-table-wrap"><table class="fc-table"><tbody>${rows}</tbody></table></div>`;
-      html += `<div class="fc-day-header">📅 今日 ${dateStr}（${dow}）　日出 ${DATA.weather.daily?.sunrise?.[0]?new Date(DATA.weather.daily.sunrise[Math.min(t.getDate()-now.getDate(),3)]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'—'} / 日入 ${DATA.weather.daily?.sunset?.[0]?new Date(DATA.weather.daily.sunset[Math.min(t.getDate()-now.getDate(),3)]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'—'} [${tideTypeName(t)}]</div>`;
-      rows = `<tr><th>時刻</th><th>天気</th><th>気温</th><th>風速</th><th>風向</th><th>サイズ</th><th>周期</th><th>うねり</th></tr>`;
+      flush();
+      const dayOff = Math.min(Math.max(t.getDate()-now.getDate(),0),3);
+      const sr = DATA.weather.daily?.sunrise?.[dayOff] ? new Date(DATA.weather.daily.sunrise[dayOff]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—';
+      const ss = DATA.weather.daily?.sunset?.[dayOff]  ? new Date(DATA.weather.daily.sunset[dayOff]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '—';
+      const dayLabel = t.getDate()===now.getDate() ? '今日' : t.getDate()===now.getDate()+1 ? '明日' : '';
+      html += `<div class="fc-day-header">📅 ${dayLabel} ${dateStr}（${dow}）　日出 ${sr} / 日入 ${ss} [${tideTypeName(t)}]</div>`;
       lastDate = dateStr;
     }
-    rows += `<tr class="${isNow?'fc-now':''}">
-      <td><b>${hStr}</b></td>
-      <td>${weatherEmoji(wc)}</td>
-      <td>${typeof tmp==='number'?tmp.toFixed(1)+'℃':'—'}</td>
-      <td>${spd.toFixed(1)}m/s</td>
-      <td><span class="fc-wind-arrow" style="display:inline-block;transform:rotate(${ddeg}deg)">↑</span><br><span style="font-size:10px">${dir(ddeg)}</span></td>
-      <td class="fc-wh">${wh.toFixed(1)}m<br><span style="font-size:9px;color:#5b8ab8;font-weight:700">${jpOne(wh)}</span></td>
-      <td>${swp !== null ? swp.toFixed(0)+'s' : '—'}</td>
-      <td><span style="display:inline-block;transform:rotate(${wdeg}deg)">↑</span><br><span style="font-size:10px">${dir(wdeg)}</span></td>
-    </tr>`;
+
+    const barPct = Math.min(wh / 2.0, 1) * 100;                 // 2mでバー満タン
+    const flowW  = (ddeg + 180) % 360;                          // 風の流れる方向（BCM式）
+    const flowS  = (wdeg + 180) % 360;                          // うねいの進む方向
+    cols += `<div class="bcm-col${isNow?' now':''}">
+      <div class="bcm-cell" style="height:26px;font-weight:800;font-size:14px;color:#345">${hStr}</div>
+      <div class="bcm-cell" style="height:26px;font-size:16px">${weatherEmoji(wc)}</div>
+      <div class="bcm-cell" style="height:20px;font-size:11px;color:#555">${typeof tmp==='number'?tmp.toFixed(0)+'℃':'—'}</div>
+      <div class="bcm-cell" style="height:20px;font-size:12px;font-weight:700;color:#345">${spd.toFixed(1)}</div>
+      <div class="bcm-cell" style="height:56px;flex-direction:column;gap:1px">
+        <span style="display:inline-block;transform:rotate(${flowW}deg);font-size:17px;color:${wtColor[wt.cls]};font-weight:900">➤</span>
+        <span style="font-size:9px;color:#667">${dir(ddeg)}</span>
+        <span class="wt-badge" style="background:${wtColor[wt.cls]}">${wt.label.replace('ショア','')}</span>
+      </div>
+      <div class="bcm-cell bcm-bar-area" style="height:96px">
+        <div class="bcm-bar" style="height:${barPct}%"></div>
+        <div style="position:absolute;top:6px;left:0;right:0;font-size:13px;font-weight:900;color:#1a4a7a">${wh.toFixed(2)}</div>
+        <div style="position:absolute;top:24px;left:0;right:0;font-size:9px;font-weight:700;color:#2f6db5">${jpOne(wh)}</div>
+      </div>
+      <div class="bcm-cell" style="height:20px;font-size:10px;color:#555">${swp !== null ? swp.toFixed(0)+'秒' : '—'}</div>
+      <div class="bcm-cell" style="height:34px;flex-direction:column">
+        <span style="display:inline-block;transform:rotate(${flowS}deg);font-size:12px;color:#2f6db5">➤</span>
+        <span style="font-size:9px;color:#667">${dir(wdeg)}</span>
+      </div>
+    </div>`;
   }
-  if (rows) html += `<div class="fc-table-wrap"><table class="fc-table"><tbody>${rows}</tbody></table></div>`;
+  flush();
   document.getElementById('forecastContent').innerHTML = html || '<div class="err">予報データなし</div>';
 }
 
