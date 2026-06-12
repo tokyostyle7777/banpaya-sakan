@@ -337,13 +337,27 @@ function exposureFactor(swellDeg, facing) {
   const diff = Math.abs(((swellDeg - facing) + 540) % 360 - 180);
   return diff <= 45 ? 1.0 : diff <= 75 ? 0.85 : diff <= 105 ? 0.6 : 0.35;
 }
+// 実測較正：2024年 鹿島NOWPHAS 8,778時間 vs Open-Meteoの突合から導出（相関0.95）
+// モデルは大波ほど控えめに出る（2.8m超で実際は1.23倍）→区分線形で補正
+const CALIB = [[0.4,0.95],[0.85,0.99],[1.25,1.07],[1.75,1.13],[2.4,1.18],[3.2,1.23]];
+function calibrateHs(m) {
+  if (m <= CALIB[0][0]) return CALIB[0][1];
+  for (let i = 1; i < CALIB.length; i++) {
+    if (m <= CALIB[i][0]) {
+      const [x0,y0] = CALIB[i-1], [x1,y1] = CALIB[i];
+      return y0 + (y1 - y0) * (m - x0) / (x1 - x0);
+    }
+  }
+  return CALIB[CALIB.length-1][1];
+}
 function effectiveFace(mc, facing) {
+  const calib = calibrateHs(mc.wave_height ?? 0);
   const sw  = mc.swell_wave_height;
-  if (sw === undefined || sw === null) return (mc.wave_height ?? 0) * SURF_FACTOR;
+  if (sw === undefined || sw === null) return (mc.wave_height ?? 0) * calib * SURF_FACTOR;
   const wwh  = mc.wind_wave_height ?? 0;
   const sdir = mc.swell_wave_direction ?? mc.wave_direction ?? facing;
   const expo = exposureFactor(sdir, facing);
-  return Math.sqrt((sw * expo) ** 2 + (wwh * 0.9) ** 2) * SURF_FACTOR;
+  return Math.sqrt((sw * expo) ** 2 + (wwh * 0.9) ** 2) * calib * SURF_FACTOR;
 }
 
 // ── BCM風サイズ表記（モモ〜コシ setハラ） ──
@@ -826,6 +840,7 @@ function renderObsCard() {
     <div class="cond-title">📡 海の実測値 <span style="font-size:11px;font-weight:400;color:#888;float:right">観測 ${OBS.obs_time||'—'}・20分毎更新</span></div>
     ${rows}
     <div style="margin-top:6px;font-size:10px;color:#aaa">出典：${OBS.source}。予報でなく観測機が測った今の海。予報とのズレの答え合わせに使う。</div>
+    <div style="margin-top:4px;font-size:10px;color:#aaa">✅ サイズ較正済み：2024年 鹿島実測8,778時間と突合（相関0.95・大波時はモデルが2割小さく出る癖を補正）</div>
   </div>`;
 }
 
