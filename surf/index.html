@@ -76,7 +76,7 @@ body{background:#e8eef4;color:#222;font-family:-apple-system,'Hiragino Sans',san
 .tide-type-badge{background:#5b8ab8;color:#fff;font-size:12px;padding:3px 8px;border-radius:12px}
 .tide-sun{font-size:12px;color:#888;display:flex;gap:12px}
 .tide-graph-wrap{background:#e8f0f8;padding:14px;position:relative}
-canvas#tideChart{width:100%!important;display:block}
+canvas#tideChart{display:block}
 .tide-extremes{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:10px 12px;background:#fff;border-bottom:1px solid #e0e0e0}
 .te-item{text-align:center;background:#f0f6ff;border-radius:8px;padding:6px 4px}
 .te-type{font-size:10px;color:#888;margin-bottom:2px}
@@ -1471,8 +1471,8 @@ function showTab(tab) {
   if (tab==='weather') renderWeather();
 }
 
-// v2.4（2026/6/12）うねり分離・3モデル信頼度・NOWPHAS実測・気象庁潮汐・潮の癖スコア・4日間統合グラフ
-const APP_VER = '2.4';
+// v2.5（2026/6/12）うねり分離・3モデル信頼度・NOWPHAS実測・気象庁潮汐・潮の癖スコア・4日間統合グラフ
+const APP_VER = '2.5';
 (async () => {
   // 新版が公開されていたら自動で再読み込み（携帯の古いキャッシュ対策）
   try {
