@@ -894,6 +894,11 @@ function renderTide() {
     </div>
     <div class="tide-graph-wrap">
       <canvas id="tideChart" height="120"></canvas>
+      <div style="display:flex;gap:10px;justify-content:center;font-size:10px;color:#556;padding-top:4px;flex-wrap:wrap">
+        <span>〰️ 潮位</span>
+        <span><span style="display:inline-block;width:8px;height:10px;background:rgba(47,109,181,0.42);vertical-align:middle"></span> 波の大きさ</span>
+        <span>⬆ 風（<span style="color:#00b359;font-weight:700">緑=オフ</span>・<span style="color:#f5a623;font-weight:700">黄=サイドオン</span>・<span style="color:#e74c3c;font-weight:700">赤=オン</span>・長さ=強さ）</span>
+      </div>
     </div>
     <div class="tide-extremes">
       ${todayExtremes.map(e => `
@@ -913,10 +918,10 @@ function drawTideChart(now) {
   const canvas = document.getElementById('tideChart');
   if (!canvas) return;
   canvas.width = canvas.parentElement.offsetWidth;
-  canvas.height = 140;
+  canvas.height = 178;
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
-  const PAD = { t:10, b:30, l:8, r:8 };
+  const PAD = { t:26, b:30, l:8, r:8 };
 
   // 今日0時〜24時の10分刻み（気象庁データがあれば毎時値を補間・なければサイン近似）
   const tDayC = tideDay(SPOT.area, now);
@@ -959,6 +964,63 @@ function drawTideChart(now) {
     ctx.fillStyle = 'rgba(100,120,150,0.16)';
     ctx.fillRect(PAD.l, PAD.t, xAt(frac(srD)) - PAD.l, H - PAD.t - PAD.b);
     ctx.fillRect(xAt(frac(ssD)), PAD.t, W - PAD.r - xAt(frac(ssD)), H - PAD.t - PAD.b);
+  }
+
+  // ── 波の大きさバー（1時間毎・実効フェイス）＋風の矢印（2時間毎）を潮に重ねる ──
+  const mh = DATA?.marine?.hourly;
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const bw = (W - PAD.l - PAD.r) / 24;
+  if (mh) {
+    const idx0 = mh.time.findIndex(t => t.startsWith(todayKey));
+    if (idx0 >= 0) {
+      const faces = [];
+      for (let h = 0; h < 24 && idx0 + h < mh.time.length; h++) {
+        const i = idx0 + h;
+        faces.push(effectiveFace({ wave_height: mh.wave_height[i], swell_wave_height: mh.swell_wave_height?.[i],
+          swell_wave_direction: mh.swell_wave_direction?.[i], wind_wave_height: mh.wind_wave_height?.[i],
+          wave_direction: mh.wave_direction[i] }, SPOT.facing));
+      }
+      const maxF  = Math.max(1.0, ...faces);
+      const bandH = (H - PAD.t - PAD.b) * 0.42;
+      ctx.fillStyle = 'rgba(47,109,181,0.42)';
+      faces.forEach((f, h) => {
+        const bh = (f / maxF) * bandH;
+        ctx.fillRect(PAD.l + h*bw + bw*0.18, H - PAD.b - bh, bw*0.64, bh);
+      });
+      // ピークサイズのラベル
+      const peak = faces.indexOf(Math.max(...faces));
+      if (peak >= 0) {
+        ctx.fillStyle = '#1a4a7a';
+        ctx.font = 'bold 10px -apple-system,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${faces[peak].toFixed(1)}m ${jpOne(faces[peak])}`,
+          Math.min(Math.max(PAD.l + peak*bw + bw/2, 34), W - 40),
+          H - PAD.b - (faces[peak]/maxF)*bandH - 4);
+      }
+    }
+  }
+  const wh2 = DATA?.weather?.hourly;
+  if (wh2) {
+    const wIdx0 = wh2.time.findIndex(t => t.startsWith(todayKey));
+    if (wIdx0 >= 0) {
+      for (let h = 1; h < 24; h += 2) {
+        const i = wIdx0 + h;
+        if (i >= wh2.time.length) break;
+        const ddeg = wh2.wind_direction_10m?.[i] ?? 0;
+        const spd  = wh2.wind_speed_10m?.[i] ?? 0;
+        const wtc  = windType(ddeg, SPOT.facing).cls;
+        const col  = wtc==='off' ? '#00b359' : wtc==='sideoff' ? '#7cb342' : wtc==='sideon' ? '#f5a623' : '#e74c3c';
+        const x = PAD.l + h*bw + bw/2, y = 13;
+        const len = Math.min(4 + spd * 0.9, 11);
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate((ddeg + 180) * Math.PI / 180);
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0, len*0.6); ctx.lineTo(0, -len*0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, -len*0.6 - 3.5); ctx.lineTo(-3.2, -len*0.6 + 2.5); ctx.lineTo(3.2, -len*0.6 + 2.5); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+    }
   }
 
   // ライン
