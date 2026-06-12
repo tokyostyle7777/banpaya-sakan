@@ -893,7 +893,10 @@ function renderTide() {
       <div class="tide-type-badge">${tideType}${tSt ? '・'+tSt.label : ''}</div>
     </div>
     <div class="tide-graph-wrap">
-      <canvas id="tideChart" height="120"></canvas>
+      <div id="tideScroll" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <canvas id="tideChart" height="120"></canvas>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#8aa;padding-top:2px">← 左右にスワイプで3日後まで →</div>
       <div style="display:flex;gap:10px;justify-content:center;font-size:10px;color:#556;padding-top:4px;flex-wrap:wrap">
         <span>〰️ 潮位</span>
         <span><span style="display:inline-block;width:8px;height:10px;background:rgba(47,109,181,0.42);vertical-align:middle"></span> 波の大きさ</span>
@@ -917,64 +920,66 @@ function renderTide() {
 function drawTideChart(now) {
   const canvas = document.getElementById('tideChart');
   if (!canvas) return;
-  canvas.width = canvas.parentElement.offsetWidth;
-  canvas.height = 178;
+  const DAYS = 4, PPH = 16;                     // 4日間・1時間=16px
+  const PAD = { t:30, b:30, l:8, r:8 };
+  const W = PAD.l + DAYS*24*PPH + PAD.r;
+  const H = 188;
+  canvas.width = W; canvas.height = H;
+  canvas.style.width = W + 'px';
   const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const PAD = { t:26, b:30, l:8, r:8 };
+  const dows = ['日','月','火','水','木','金','土'];
+  const day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  // 今日0時〜24時の10分刻み（気象庁データがあれば毎時値を補間・なければサイン近似）
-  const tDayC = tideDay(SPOT.area, now);
-  const pts = [];
-  for (let m = 0; m <= 24*60; m += 10) {
-    const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, m);
-    let cm;
-    if (tDayC) {
-      const hi = Math.min(Math.floor(m/60), 23), frac = (m % 60) / 60;
-      const a = tDayC.h[hi], b = tDayC.h[Math.min(hi+1, 23)];
-      cm = Math.round(a + (b - a) * frac);
-    } else {
-      cm = tideCm(t);
+  // 4日分の毎時潮位（96時間・気象庁データ優先）
+  const days = [];
+  const tideHourly = [];
+  for (let d = 0; d < DAYS; d++) {
+    const dt = new Date(day0.getTime() + d*86400000);
+    const td = tideDay(SPOT.area, dt);
+    days.push({ dt, td });
+    for (let h = 0; h < 24; h++) {
+      tideHourly.push(td ? td.h[h] : tideCm(new Date(dt.getTime() + h*3600000)));
     }
-    pts.push({ t, cm });
   }
-  const minC = Math.min(...pts.map(p=>p.cm));
-  const maxC = Math.max(...pts.map(p=>p.cm));
-  const scX = i => PAD.l + (i / (pts.length-1)) * (W - PAD.l - PAD.r);
-  const scY = v => PAD.t + (1 - (v - minC) / (maxC - minC)) * (H - PAD.t - PAD.b);
+  const xAt = hf => PAD.l + hf * PPH;
+  const cmAt = hf => {
+    const i = Math.min(Math.floor(hf), tideHourly.length-1);
+    const a = tideHourly[i], b = tideHourly[Math.min(i+1, tideHourly.length-1)];
+    return a + (b - a) * (hf - i);
+  };
+  const minC = Math.min(...tideHourly), maxC = Math.max(...tideHourly);
+  const scY = v => PAD.t + (1 - (v - minC) / ((maxC - minC) || 1)) * (H - PAD.t - PAD.b);
 
-  // 背景グラデ
+  // 潮位の面（グラデ）
   const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, 'rgba(91,139,184,0.4)');
-  grad.addColorStop(1, 'rgba(91,139,184,0.05)');
+  grad.addColorStop(0, 'rgba(91,139,184,0.35)');
+  grad.addColorStop(1, 'rgba(91,139,184,0.04)');
   ctx.beginPath();
-  ctx.moveTo(scX(0), H - PAD.b);
-  pts.forEach((p,i) => ctx.lineTo(scX(i), scY(p.cm)));
-  ctx.lineTo(scX(pts.length-1), H - PAD.b);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
+  ctx.moveTo(xAt(0), H - PAD.b);
+  for (let hf = 0; hf <= DAYS*24; hf += 0.25) ctx.lineTo(xAt(hf), scY(cmAt(hf)));
+  ctx.lineTo(xAt(DAYS*24), H - PAD.b);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
 
-  // 夜の時間帯に影（日出前・日入後）
-  const srD = DATA?.weather?.daily?.sunrise?.[0] ? new Date(DATA.weather.daily.sunrise[0]) : null;
-  const ssD = DATA?.weather?.daily?.sunset?.[0]  ? new Date(DATA.weather.daily.sunset[0])  : null;
-  if (srD && ssD) {
-    const frac = d => (d.getHours()*60 + d.getMinutes()) / (24*60);
-    const xAt  = f => PAD.l + f * (W - PAD.l - PAD.r);
-    ctx.fillStyle = 'rgba(100,120,150,0.16)';
-    ctx.fillRect(PAD.l, PAD.t, xAt(frac(srD)) - PAD.l, H - PAD.t - PAD.b);
-    ctx.fillRect(xAt(frac(ssD)), PAD.t, W - PAD.r - xAt(frac(ssD)), H - PAD.t - PAD.b);
+  // 夜の影（日毎・日出前と日入後）
+  ctx.fillStyle = 'rgba(100,120,150,0.16)';
+  for (let d = 0; d < DAYS; d++) {
+    const sr = DATA?.weather?.daily?.sunrise?.[d] ? new Date(DATA.weather.daily.sunrise[d]) : null;
+    const ss = DATA?.weather?.daily?.sunset?.[d]  ? new Date(DATA.weather.daily.sunset[d])  : null;
+    const f = t => t.getHours() + t.getMinutes()/60;
+    const x0 = xAt(d*24), x1 = xAt(d*24 + (sr ? f(sr) : 4.5));
+    ctx.fillRect(x0, PAD.t, x1 - x0, H - PAD.t - PAD.b);
+    const x2 = xAt(d*24 + (ss ? f(ss) : 19)), x3 = xAt((d+1)*24);
+    ctx.fillRect(x2, PAD.t, x3 - x2, H - PAD.t - PAD.b);
   }
 
-  // ── 波の大きさバー（1時間毎・実効フェイス）＋風の矢印（2時間毎）を潮に重ねる ──
+  // 波の大きさバー（1時間毎・実効フェイス・96時間）
   const mh = DATA?.marine?.hourly;
-  const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const bw = (W - PAD.l - PAD.r) / 24;
+  const day0Key = `${day0.getFullYear()}-${String(day0.getMonth()+1).padStart(2,'0')}-${String(day0.getDate()).padStart(2,'0')}`;
   if (mh) {
-    const idx0 = mh.time.findIndex(t => t.startsWith(todayKey));
+    const idx0 = mh.time.findIndex(t => t.startsWith(day0Key));
     if (idx0 >= 0) {
       const faces = [];
-      for (let h = 0; h < 24 && idx0 + h < mh.time.length; h++) {
+      for (let h = 0; h < DAYS*24 && idx0 + h < mh.time.length; h++) {
         const i = idx0 + h;
         faces.push(effectiveFace({ wave_height: mh.wave_height[i], swell_wave_height: mh.swell_wave_height?.[i],
           swell_wave_direction: mh.swell_wave_direction?.[i], wind_wave_height: mh.wind_wave_height?.[i],
@@ -985,32 +990,34 @@ function drawTideChart(now) {
       ctx.fillStyle = 'rgba(47,109,181,0.42)';
       faces.forEach((f, h) => {
         const bh = (f / maxF) * bandH;
-        ctx.fillRect(PAD.l + h*bw + bw*0.18, H - PAD.b - bh, bw*0.64, bh);
+        ctx.fillRect(xAt(h) + PPH*0.18, H - PAD.b - bh, PPH*0.64, bh);
       });
-      // ピークサイズのラベル
-      const peak = faces.indexOf(Math.max(...faces));
-      if (peak >= 0) {
+      // 日毎のピークサイズラベル
+      ctx.font = 'bold 10px -apple-system,sans-serif'; ctx.textAlign = 'center';
+      for (let d = 0; d < DAYS; d++) {
+        const seg = faces.slice(d*24, d*24 + 24);
+        if (!seg.length) break;
+        const pk = seg.indexOf(Math.max(...seg));
+        const fv = seg[pk];
         ctx.fillStyle = '#1a4a7a';
-        ctx.font = 'bold 10px -apple-system,sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${faces[peak].toFixed(1)}m ${jpOne(faces[peak])}`,
-          Math.min(Math.max(PAD.l + peak*bw + bw/2, 34), W - 40),
-          H - PAD.b - (faces[peak]/maxF)*bandH - 4);
+        ctx.fillText(`${fv.toFixed(1)}m ${jpOne(fv)}`, xAt(d*24 + pk) + PPH/2, H - PAD.b - (fv/maxF)*bandH - 4);
       }
     }
   }
+
+  // 風の矢印（3時間毎・96時間・色=オン/オフ・長さ=強さ）
   const wh2 = DATA?.weather?.hourly;
   if (wh2) {
-    const wIdx0 = wh2.time.findIndex(t => t.startsWith(todayKey));
+    const wIdx0 = wh2.time.findIndex(t => t.startsWith(day0Key));
     if (wIdx0 >= 0) {
-      for (let h = 1; h < 24; h += 2) {
+      for (let h = 1; h < DAYS*24; h += 3) {
         const i = wIdx0 + h;
         if (i >= wh2.time.length) break;
         const ddeg = wh2.wind_direction_10m?.[i] ?? 0;
         const spd  = wh2.wind_speed_10m?.[i] ?? 0;
         const wtc  = windType(ddeg, SPOT.facing).cls;
         const col  = wtc==='off' ? '#00b359' : wtc==='sideoff' ? '#7cb342' : wtc==='sideon' ? '#f5a623' : '#e74c3c';
-        const x = PAD.l + h*bw + bw/2, y = 13;
+        const x = xAt(h) + PPH/2, y = 22;
         const len = Math.min(4 + spd * 0.9, 11);
         ctx.save();
         ctx.translate(x, y);
@@ -1023,68 +1030,63 @@ function drawTideChart(now) {
     }
   }
 
-  // ライン
-  ctx.beginPath();
-  ctx.strokeStyle = '#5b8ab8';
-  ctx.lineWidth = 2.5;
-  pts.forEach((p,i) => i===0 ? ctx.moveTo(scX(i), scY(p.cm)) : ctx.lineTo(scX(i), scY(p.cm)));
+  // 潮位ライン
+  ctx.beginPath(); ctx.strokeStyle = '#5b8ab8'; ctx.lineWidth = 2.5;
+  for (let hf = 0; hf <= DAYS*24; hf += 0.25) {
+    const x = xAt(hf), y = scY(cmAt(hf));
+    hf === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
   ctx.stroke();
 
-  // 極値にドット+ラベル（気象庁データ優先）
-  let ex;
-  if (tDayC) {
-    ex = [
-      ...tDayC.hi.map(e => ({ type:'満潮', timeStr:e[0], cm:e[1] })),
-      ...tDayC.lo.map(e => ({ type:'干潮', timeStr:e[0], cm:e[1] })),
-    ].map(e => ({ ...e, mins: parseInt(e.timeStr.slice(0,2))*60 + parseInt(e.timeStr.slice(3,5)) }));
-  } else {
-    ex = getTideExtremes(now, 26).filter(e => e.t.getDate() === now.getDate())
-      .map(e => ({ type:e.type, cm:e.cm, mins:e.t.getHours()*60 + e.t.getMinutes(),
-                   timeStr:`${String(e.t.getHours()).padStart(2,'0')}:${String(e.t.getMinutes()).padStart(2,'0')}` }));
-  }
-  ex.forEach(e => {
-    const fracOfDay = e.mins / (24*60);
-    const idx = Math.round(fracOfDay * (pts.length-1));
-    const x = scX(idx), y = scY(e.cm);
-    ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI*2);
-    ctx.fillStyle = '#5b8ab8';
-    ctx.fill();
-    ctx.fillStyle = '#333';
-    ctx.font = 'bold 11px -apple-system,sans-serif';
-    ctx.textAlign = 'center';
-    const labelY = e.type==='満潮' ? y - 10 : y + 20;
-    ctx.fillText(`${e.cm}cm`, x, labelY);
-    ctx.fillStyle = '#888';
-    ctx.font = '10px -apple-system,sans-serif';
-    ctx.fillText(e.timeStr, x, e.type==='満潮' ? y - 22 : y + 32);
+  // 満潮・干潮ドット＋ラベル（4日分）
+  days.forEach(({ td }, d) => {
+    if (!td) return;
+    const ex = [...td.hi.map(e => ({type:'満潮', timeStr:e[0], cm:e[1]})),
+                ...td.lo.map(e => ({type:'干潮', timeStr:e[0], cm:e[1]}))];
+    ex.forEach(e => {
+      const hf = d*24 + parseInt(e.timeStr.slice(0,2)) + parseInt(e.timeStr.slice(3,5))/60;
+      const x = xAt(hf), y = scY(e.cm);
+      ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI*2); ctx.fillStyle = '#5b8ab8'; ctx.fill();
+      ctx.fillStyle = '#333'; ctx.font = 'bold 11px -apple-system,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(`${e.cm}`, x, e.type === '満潮' ? y - 9 : y + 18);
+      ctx.fillStyle = '#888'; ctx.font = '9px -apple-system,sans-serif';
+      ctx.fillText(e.timeStr, x, e.type === '満潮' ? y - 20 : y + 29);
+    });
   });
 
-  // 現在時刻の縦線
-  const nowFrac = (now.getHours()*60 + now.getMinutes()) / (24*60);
-  const nx = PAD.l + nowFrac * (W - PAD.l - PAD.r);
-  ctx.beginPath();
-  ctx.strokeStyle = '#5b8ab8';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([]);
-  ctx.moveTo(nx, 0);
-  ctx.lineTo(nx, H - PAD.b);
-  ctx.stroke();
+  // 日の境界線＋日付ラベル
+  for (let d = 0; d < DAYS; d++) {
+    const x = xAt(d*24);
+    if (d > 0) {
+      ctx.beginPath(); ctx.strokeStyle = 'rgba(40,60,90,0.35)'; ctx.lineWidth = 1.5;
+      ctx.moveTo(x, 0); ctx.lineTo(x, H - PAD.b); ctx.stroke();
+    }
+    const dt = days[d].dt;
+    const label = (d===0 ? '今日 ' : d===1 ? '明日 ' : '') + `${dt.getMonth()+1}/${dt.getDate()}(${dows[dt.getDay()]})［${tideTypeName(dt)}］`;
+    ctx.fillStyle = '#1a4a7a'; ctx.font = 'bold 11px -apple-system,sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(label, x + 4, 11);
+  }
 
-  // X軸目盛り（0,2,4...24）
-  ctx.fillStyle = '#888';
-  ctx.font = '10px -apple-system,sans-serif';
-  ctx.textAlign = 'center';
-  for (let h = 0; h <= 24; h += 2) {
-    const x = PAD.l + (h/24) * (W - PAD.l - PAD.r);
-    ctx.fillText(h, x, H - 6);
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([]);
-    ctx.moveTo(x, PAD.t);
-    ctx.lineTo(x, H - PAD.b);
-    ctx.stroke();
+  // X軸目盛り（3時間毎）
+  ctx.fillStyle = '#888'; ctx.font = '10px -apple-system,sans-serif'; ctx.textAlign = 'center';
+  for (let h = 0; h <= DAYS*24; h += 3) {
+    const x = xAt(h);
+    ctx.fillText(h % 24, x, H - 6);
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 1;
+    ctx.moveTo(x, PAD.t); ctx.lineTo(x, H - PAD.b); ctx.stroke();
+  }
+
+  // 現在時刻の赤い縦線
+  const nowHf = (now - day0) / 3600000;
+  const nx = xAt(nowHf);
+  ctx.beginPath(); ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2;
+  ctx.moveTo(nx, 13); ctx.lineTo(nx, H - PAD.b); ctx.stroke();
+
+  // 初期スクロール位置を「今」に合わせる
+  const sc = document.getElementById('tideScroll');
+  if (sc && !sc.dataset.scrolled) {
+    sc.scrollLeft = Math.max(0, nx - 70);
+    sc.dataset.scrolled = '1';
   }
 }
 
@@ -1469,8 +1471,21 @@ function showTab(tab) {
   if (tab==='weather') renderWeather();
 }
 
-// v2.0（2026/6/12）うねり分離・3モデル信頼度・NOWPHAS実測・気象庁潮汐・潮の癖スコア
+// v2.4（2026/6/12）うねり分離・3モデル信頼度・NOWPHAS実測・気象庁潮汐・潮の癖スコア・4日間統合グラフ
+const APP_VER = '2.4';
 (async () => {
+  // 新版が公開されていたら自動で再読み込み（携帯の古いキャッシュ対策）
+  try {
+    const r = await fetch('version.txt', { cache: 'no-store' });
+    if (r.ok) {
+      const v = (await r.text()).trim();
+      if (v && v !== APP_VER && !sessionStorage.getItem('rl_' + v)) {
+        sessionStorage.setItem('rl_' + v, '1');
+        location.reload();
+        return;
+      }
+    }
+  } catch(e) {}
   await loadStatic();
   loadAll();
   renderSpotList();
