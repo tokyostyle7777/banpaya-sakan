@@ -194,8 +194,8 @@ const SURF_FACTOR = 0.70;
 const SPOTS = [
   // 千葉南
   { id:'shirasuna',  name:'和田・白渚',     lat:35.063, lon:140.018, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', note:'ホームポイント。南向きでオフショア◎。広くて入りやすく波数も多い' },
-  { id:'wada_js',    name:'和田・J\'s前',   lat:35.058, lon:140.022, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', note:'地元のホットスポット。干潮〜中間が掘れやすい' },
-  { id:'wada_hakaso',name:'和田・墓下',     lat:35.055, lon:140.025, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', note:'和田エリア北側。干潮時に掘れやすく力強いブレイク' },
+  { id:'wada_js',    name:'和田・J\'s前',   lat:35.058, lon:140.022, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', tide_pref:'low', note:'地元のホットスポット。干潮〜中間が掘れやすい' },
+  { id:'wada_hakaso',name:'和田・墓下',     lat:35.055, lon:140.025, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', tide_pref:'low', note:'和田エリア北側。干潮時に掘れやすく力強いブレイク' },
   { id:'ohara',      name:'大原駐車場前',   lat:35.270, lon:140.390, facing:100, area:'千葉南', type:'砂浜',    level:'初〜中', note:'いすみ市。スタンダードなビーチブレイク。駐車場直前' },
   { id:'hanago',     name:'花籠',           lat:35.233, lon:140.362, facing:110, area:'千葉南', type:'砂浜',    level:'初〜中', note:'いすみ市。うねりに敏感でコシ前後から入りやすい' },
   { id:'bihara',     name:'部原・メイン',   lat:35.117, lon:140.272, facing:135, area:'千葉南', type:'砂浜',    level:'初〜上', note:'南系うねりで反応◎。千葉南の代表的ポイント' },
@@ -331,6 +331,109 @@ function conditionText(wh, wp, wt) {
   return face;
 }
 
+// ── うねり実効サイズ（うねり分離＋向き考慮） ──
+// うねいの向きとビーチの向きが合うほどサイズが出る。風波は0.9掛けで合成。
+function exposureFactor(swellDeg, facing) {
+  const diff = Math.abs(((swellDeg - facing) + 540) % 360 - 180);
+  return diff <= 45 ? 1.0 : diff <= 75 ? 0.85 : diff <= 105 ? 0.6 : 0.35;
+}
+function effectiveFace(mc, facing) {
+  const sw  = mc.swell_wave_height;
+  if (sw === undefined || sw === null) return (mc.wave_height ?? 0) * SURF_FACTOR;
+  const wwh  = mc.wind_wave_height ?? 0;
+  const sdir = mc.swell_wave_direction ?? mc.wave_direction ?? facing;
+  const expo = exposureFactor(sdir, facing);
+  return Math.sqrt((sw * expo) ** 2 + (wwh * 0.9) ** 2) * SURF_FACTOR;
+}
+
+// ── BCM風サイズ表記（モモ〜コシ setハラ） ──
+function jpOne(h) {
+  if (h < 0.2)  return 'フラット';
+  if (h < 0.35) return 'スネ';
+  if (h < 0.5)  return 'ヒザ';
+  if (h < 0.7)  return 'モモ';
+  if (h < 0.9)  return 'コシ';
+  if (h < 1.1)  return 'ハラ';
+  if (h < 1.3)  return 'ムネ';
+  if (h < 1.55) return 'カタ';
+  if (h < 1.8)  return 'アタマ';
+  if (h < 2.4)  return 'アタマ半';
+  return 'ダブル';
+}
+function bcmSize(face) {
+  const lo = jpOne(face * 0.75), hi = jpOne(face), set = jpOne(face * 1.35);
+  const range = lo === hi ? hi : `${lo}〜${hi}`;
+  return set !== hi ? `${range} <span style="font-size:0.62em;opacity:0.85">set${set}</span>` : range;
+}
+
+// ── 予報信頼度（3モデルの一致度） ──
+function modelAgreement() {
+  const h = DATA?.models?.hourly;
+  if (!h) return null;
+  const keys = Object.keys(h).filter(k => k.startsWith('wave_height_'));
+  if (keys.length < 2) return null;
+  const nowIdx = Math.max(0, h.time.findIndex(t => new Date(t) >= new Date()));
+  let spreads = [], n = 0;
+  for (let i = nowIdx; i < Math.min(nowIdx + 24, h.time.length); i++) {
+    const vals = keys.map(k => h[k][i]).filter(v => v !== null && v !== undefined);
+    if (vals.length < 2) continue;
+    const mean = vals.reduce((a,b)=>a+b,0) / vals.length;
+    if (mean < 0.05) continue;
+    spreads.push((Math.max(...vals) - Math.min(...vals)) / mean);
+    n++;
+  }
+  if (!n) return null;
+  const avg = spreads.reduce((a,b)=>a+b,0) / n;
+  if (avg < 0.18) return { mark:'◎', text:'3モデルほぼ一致・信頼度 高', color:'#00b359' };
+  if (avg < 0.40) return { mark:'○', text:'モデル間に少し差・信頼度 中', color:'#5b8ab8' };
+  return { mark:'△', text:'モデルの予想が割れている・参考程度', color:'#f5a623' };
+}
+
+// ── 本物の潮汐（気象庁・Macが同梱） ──
+function tideStationFor(area) {
+  return (area === '千葉南' || area === '千葉北') ? 'ZF' : 'MR';
+}
+function tideDay(area, d = new Date()) {
+  if (!TIDE) return null;
+  const st = TIDE.stations[tideStationFor(area)];
+  if (!st) return null;
+  const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return st.days[key] ? { name: st.name, ...st.days[key] } : null;
+}
+function tideNowCm(day, d = new Date()) {
+  const h = d.getHours();
+  const a = day.h[h], b = h < 23 ? day.h[h+1] : day.h[23];
+  return Math.round(a + (b - a) * (d.getMinutes() / 60));
+}
+// 潮の状態：上げ◯分・下げ◯分（満干時刻から算出）
+function tideState(day, d = new Date()) {
+  const toMin = s => parseInt(s.slice(0,2)) * 60 + parseInt(s.slice(3,5));
+  const nowM = d.getHours() * 60 + d.getMinutes();
+  const evs = [...day.hi.map(e => ({ m: toMin(e[0]), type: 'hi' })),
+               ...day.lo.map(e => ({ m: toMin(e[0]), type: 'lo' }))].sort((a,b) => a.m - b.m);
+  if (!evs.length) return null;
+  let prev = null, next = null;
+  for (const e of evs) { if (e.m <= nowM) prev = e; else { next = e; break; } }
+  if (!prev || !next) {
+    // 日マタギは潮位トレンドで判定
+    const cm = tideNowCm(day, d), cm1 = day.h[Math.min(d.getHours()+1, 23)];
+    return { dir: cm1 >= cm ? '上げ' : '下げ', label: cm1 >= cm ? '上げ' : '下げ' };
+  }
+  const prog = Math.round(((nowM - prev.m) / (next.m - prev.m)) * 10);
+  const dir = next.type === 'hi' ? '上げ' : '下げ';
+  return { dir, label: `${dir}${Math.min(Math.max(prog,0),10)}分` };
+}
+// スポットの潮の癖との相性（tide_pref: 'low'=干潮〜中間が良い）
+function tidePrefBonus(sp, day, d = new Date()) {
+  if (!sp.tide_pref || !day) return 0;
+  const min = Math.min(...day.h), max = Math.max(...day.h);
+  if (max - min < 20) return 0;
+  const pct = (tideNowCm(day, d) - min) / (max - min);
+  if (sp.tide_pref === 'low')  return pct < 0.45 ? 6 : pct > 0.75 ? -4 : 0;
+  if (sp.tide_pref === 'high') return pct > 0.55 ? 6 : pct < 0.25 ? -4 : 0;
+  return 0;
+}
+
 // ── 天気コード絵文字 ──
 function weatherEmoji(code) {
   if (code === 0) return '☀️';
@@ -384,15 +487,29 @@ function tideTypeName(date) {
   return '中潮';
 }
 
+// ── 静的データ（実測・潮汐）── Macが30分毎に取得して同梱（NOWPHAS/気象庁はCORS不可のため）
+let OBS = null, TIDE = null;
+async function loadStatic() {
+  try {
+    const r = await fetch(`data/obs.json?t=${Date.now()}`);
+    if (r.ok) OBS = await r.json();
+  } catch(e) {}
+  try {
+    const r = await fetch(`data/tide_${new Date().getFullYear()}.json`);
+    if (r.ok) TIDE = await r.json();
+  } catch(e) {}
+}
+
 // ── APIデータ取得 ──
 async function loadAll() {
   document.getElementById('checkTime').textContent = '更新中...';
   try {
-    const [mRes, wRes] = await Promise.all([
-      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${SPOT.lat}&longitude=${SPOT.lon}&current=wave_height,wave_period,wave_direction,sea_surface_temperature&hourly=wave_height,wave_period,wave_direction,sea_surface_temperature&timezone=Asia%2FTokyo&forecast_days=4`),
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${SPOT.lat}&longitude=${SPOT.lon}&current=wind_speed_10m,wind_direction_10m,temperature_2m,weather_code&hourly=wind_speed_10m,wind_direction_10m,temperature_2m,weather_code,precipitation_probability&daily=sunrise,sunset&wind_speed_unit=ms&timezone=Asia%2FTokyo&forecast_days=4`)
+    const [mRes, wRes, mmRes] = await Promise.all([
+      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${SPOT.lat}&longitude=${SPOT.lon}&current=wave_height,wave_period,wave_direction,sea_surface_temperature,swell_wave_height,swell_wave_period,swell_wave_direction,wind_wave_height&hourly=wave_height,wave_period,wave_direction,sea_surface_temperature,swell_wave_height,swell_wave_period,swell_wave_direction,wind_wave_height&timezone=Asia%2FTokyo&forecast_days=4`),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${SPOT.lat}&longitude=${SPOT.lon}&current=wind_speed_10m,wind_direction_10m,temperature_2m,weather_code&hourly=wind_speed_10m,wind_direction_10m,temperature_2m,weather_code,precipitation_probability&daily=sunrise,sunset&wind_speed_unit=ms&timezone=Asia%2FTokyo&forecast_days=4`),
+      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${SPOT.lat}&longitude=${SPOT.lon}&hourly=wave_height&models=ecmwf_wam025,ncep_gfswave025,meteofrance_wave&timezone=Asia%2FTokyo&forecast_days=2`).catch(()=>null)
     ]);
-    DATA = { marine: await mRes.json(), weather: await wRes.json() };
+    DATA = { marine: await mRes.json(), weather: await wRes.json(), models: mmRes && mmRes.ok ? await mmRes.json() : null };
     const now = new Date();
     document.getElementById('checkTime').textContent = `check ${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
     renderWave();
@@ -410,8 +527,12 @@ async function loadAll() {
 function renderWave() {
   const mc = DATA.marine.current;
   const wc = DATA.weather.current;
-  const wh   = (mc.wave_height ?? 0) * SURF_FACTOR;
-  const wp   = mc.wave_period ?? 0;
+  const wh   = effectiveFace(mc, SPOT.facing);            // うねり実効フェイス
+  const swH  = mc.swell_wave_height ?? null;
+  const swP  = mc.swell_wave_period ?? null;
+  const swD  = mc.swell_wave_direction ?? null;
+  const wwH  = mc.wind_wave_height ?? null;
+  const wp   = swP ?? mc.wave_period ?? 0;
   const sst  = mc.sea_surface_temperature ?? null;
   const wspd = wc.wind_speed_10m ?? 0;
   const wdeg = wc.wind_direction_10m ?? 0;
@@ -420,10 +541,14 @@ function renderWave() {
 
   const wt  = windType(wdeg, SPOT.facing);
   const wn  = waveNum(wh);
-  const jp  = waveJP(wh);
+  const jp  = bcmSize(wh);
   const cond= conditionText(wh, wp, wt);
   const wdir= dir(wdeg);
   const wstr= windStr(wspd);
+  const agree = modelAgreement();
+  const tDay  = tideDay(SPOT.area);
+  const tSt   = tDay ? tideState(tDay) : null;
+  const tBonus= tDay ? tidePrefBonus(SPOT, tDay) : 0;
 
   // 矢印の回転角度（上向き=0度が「北」なので、風向degをそのまま使用）
   const arrowDeg = wdeg;
@@ -490,15 +615,22 @@ function renderWave() {
 
     <!-- コンディション -->
     <div class="cond-section">
-      <div class="cond-title">コンディション</div>
+      <div class="cond-title">コンディション
+        ${agree ? `<span style="float:right;font-size:12px;font-weight:700;color:${agree.color}">予報信頼度 ${agree.mark}</span>` : ''}
+      </div>
+      ${swH !== null ? `<div class="cond-row"><span class="cond-key">うねり</span><span class="cond-val"><b>${swH.toFixed(1)}m / ${(swP??0).toFixed(0)}秒 / ${swD!==null?dir(swD):'—'}から</b></span></div>` : ''}
+      ${wwH !== null ? `<div class="cond-row"><span class="cond-key">風　波</span><span class="cond-val">${wwH.toFixed(1)}m（風で立つ波・面を乱す成分）</span></div>` : ''}
       <div class="cond-row"><span class="cond-key">波　面</span><span class="cond-val">${cond.face}</span></div>
-      <div class="cond-row"><span class="cond-key">ウネリ</span><span class="cond-val">${cond.swell}</span></div>
       <div class="cond-row"><span class="cond-key">波　数</span><span class="cond-val">${cond.count}</span></div>
       <div class="cond-row"><span class="cond-key">風　速</span><span class="cond-val">${wspd.toFixed(1)}m/s ${wstr} ${wdir}</span></div>
+      ${tSt ? `<div class="cond-row"><span class="cond-key">潮</span><span class="cond-val"><b>${tSt.label}</b>（今 ${tideNowCm(tDay)}cm・${tDay.name}基準）${tBonus > 0 ? ' <span style="color:#00b359;font-weight:700">◎このスポット向きの潮</span>' : tBonus < 0 ? ' <span style="color:#f5a623">△潮が合わない時間帯</span>' : ''}</span></div>` : ''}
+      ${agree ? `<div style="margin-top:6px;font-size:11px;color:#888">🛰️ ${agree.text}（欧州ECMWF・米GFS・仏MFWAMの波予報を比較）</div>` : ''}
       <div style="margin-top:8px;background:#f0f6ff;border-radius:6px;padding:8px 10px;font-size:12px;color:#444;line-height:1.6">
         <span style="font-weight:700;color:#5b8ab8">📍 ${SPOT.type} / ${SPOT.level}　</span>${SPOT.note}
       </div>
     </div>
+
+    ${renderObsCard()}
 
     <!-- 無料カメラ・波情報リンク -->
     <div class="cam-section">
@@ -669,6 +801,34 @@ function renderWave() {
     </div>`;
 }
 
+// ── 実測カード（NOWPHAS・国交省） ──
+function renderObsCard() {
+  if (!OBS?.stations?.length) return '';
+  // エリアに合う観測点を優先表示
+  const isBay = SPOT.area === '内房';
+  const order = isBay ? ['217','221','222','504'] : ['222','504','217','221'];
+  const sts = [...OBS.stations].sort((a,b) => order.indexOf(a.code) - order.indexOf(b.code)).slice(0,2);
+  const rows = sts.map(s => {
+    const swell = s.swell_cm !== null && s.swell_cm !== undefined ? `うねり${(s.swell_cm/100).toFixed(1)}m(${s.swell_dir||'—'})` : '';
+    const fuha  = s.windwave_cm !== null && s.windwave_cm !== undefined ? `風波${(s.windwave_cm/100).toFixed(1)}m` : '';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0f0f0">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#333">${s.name} <span style="font-size:10px;font-weight:400;color:#888">${s.role}</span></div>
+        <div style="font-size:11px;color:#888">${swell}${swell&&fuha?'・':''}${fuha}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:17px;font-weight:900;color:#1565c0">${s.hs.toFixed(2)}m</div>
+        <div style="font-size:10px;color:#888">${s.period ? s.period.toFixed(1)+'秒' : ''} ${s.dir||''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="cond-section" style="border-top:6px solid #f0f0f0">
+    <div class="cond-title">📡 海の実測値 <span style="font-size:11px;font-weight:400;color:#888;float:right">観測 ${OBS.obs_time||'—'}・20分毎更新</span></div>
+    ${rows}
+    <div style="margin-top:6px;font-size:10px;color:#aaa">出典：${OBS.source}。予報でなく観測機が測った今の海。予報とのズレの答え合わせに使う。</div>
+  </div>`;
+}
+
 // ── タイドタブ描画 ──
 function renderTide() {
   const now = new Date();
@@ -679,13 +839,23 @@ function renderTide() {
   const sunrise = DATA.weather.daily?.sunrise?.[0] ? new Date(DATA.weather.daily.sunrise[0]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '--:--';
   const sunset  = DATA.weather.daily?.sunset?.[0]  ? new Date(DATA.weather.daily.sunset[0]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '--:--';
 
-  const extremes = getTideExtremes(now, 30).filter(e => {
-    return e.t >= new Date(now.getFullYear(), now.getMonth(), now.getDate()) &&
-           e.t < new Date(now.getFullYear(), now.getMonth(), now.getDate()+2);
-  });
-  const todayExtremes = extremes.filter(e => e.t.getDate() === now.getDate()).slice(0,4);
-
-  const fmt = t => `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+  // 本物の潮汐（気象庁）があれば優先・なければサイン近似
+  const tDay = tideDay(SPOT.area, now);
+  let todayExtremes, srcNote;
+  if (tDay) {
+    todayExtremes = [
+      ...tDay.hi.map(e => ({ type:'満潮', time:e[0], cm:e[1] })),
+      ...tDay.lo.map(e => ({ type:'干潮', time:e[0], cm:e[1] })),
+    ].sort((a,b) => a.time.localeCompare(b.time)).slice(0,4);
+    srcNote = `気象庁 潮位表（${tDay.name}）`;
+  } else {
+    const fmt = t => `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+    todayExtremes = getTideExtremes(now, 30)
+      .filter(e => e.t.getDate() === now.getDate())
+      .slice(0,4).map(e => ({ type:e.type, time:fmt(e.t), cm:e.cm }));
+    srcNote = '簡易計算（参考値）';
+  }
+  const tSt = tDay ? tideState(tDay, now) : null;
 
   document.getElementById('tideContent').innerHTML = `
     <div class="tide-header">
@@ -696,7 +866,7 @@ function renderTide() {
           <span>🌇 SUNSET ${sunset}</span>
         </div>
       </div>
-      <div class="tide-type-badge">${tideType}</div>
+      <div class="tide-type-badge">${tideType}${tSt ? '・'+tSt.label : ''}</div>
     </div>
     <div class="tide-graph-wrap">
       <canvas id="tideChart" height="120"></canvas>
@@ -705,10 +875,11 @@ function renderTide() {
       ${todayExtremes.map(e => `
         <div class="te-item">
           <div class="te-type">${e.type}</div>
-          <div class="te-time">${fmt(e.t)}</div>
+          <div class="te-time">${e.time}</div>
           <div class="te-cm">${e.cm}cm</div>
         </div>`).join('')}
-    </div>`;
+    </div>
+    <div style="padding:6px 14px;font-size:10px;color:#aaa;background:#fff">📍 ${srcNote}</div>`;
 
   // グラフ描画
   requestAnimationFrame(() => drawTideChart(now));
@@ -723,11 +894,20 @@ function drawTideChart(now) {
   const W = canvas.width, H = canvas.height;
   const PAD = { t:10, b:30, l:8, r:8 };
 
-  // 今日0時〜24時の10分刻み
+  // 今日0時〜24時の10分刻み（気象庁データがあれば毎時値を補間・なければサイン近似）
+  const tDayC = tideDay(SPOT.area, now);
   const pts = [];
   for (let m = 0; m <= 24*60; m += 10) {
     const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, m);
-    pts.push({ t, cm: tideCm(t) });
+    let cm;
+    if (tDayC) {
+      const hi = Math.min(Math.floor(m/60), 23), frac = (m % 60) / 60;
+      const a = tDayC.h[hi], b = tDayC.h[Math.min(hi+1, 23)];
+      cm = Math.round(a + (b - a) * frac);
+    } else {
+      cm = tideCm(t);
+    }
+    pts.push({ t, cm });
   }
   const minC = Math.min(...pts.map(p=>p.cm));
   const maxC = Math.max(...pts.map(p=>p.cm));
@@ -753,10 +933,20 @@ function drawTideChart(now) {
   pts.forEach((p,i) => i===0 ? ctx.moveTo(scX(i), scY(p.cm)) : ctx.lineTo(scX(i), scY(p.cm)));
   ctx.stroke();
 
-  // 極値にドット+ラベル
-  const ex = getTideExtremes(now, 26).filter(e => e.t.getDate() === now.getDate());
+  // 極値にドット+ラベル（気象庁データ優先）
+  let ex;
+  if (tDayC) {
+    ex = [
+      ...tDayC.hi.map(e => ({ type:'満潮', timeStr:e[0], cm:e[1] })),
+      ...tDayC.lo.map(e => ({ type:'干潮', timeStr:e[0], cm:e[1] })),
+    ].map(e => ({ ...e, mins: parseInt(e.timeStr.slice(0,2))*60 + parseInt(e.timeStr.slice(3,5)) }));
+  } else {
+    ex = getTideExtremes(now, 26).filter(e => e.t.getDate() === now.getDate())
+      .map(e => ({ type:e.type, cm:e.cm, mins:e.t.getHours()*60 + e.t.getMinutes(),
+                   timeStr:`${String(e.t.getHours()).padStart(2,'0')}:${String(e.t.getMinutes()).padStart(2,'0')}` }));
+  }
   ex.forEach(e => {
-    const fracOfDay = (e.t.getHours()*60 + e.t.getMinutes()) / (24*60);
+    const fracOfDay = e.mins / (24*60);
     const idx = Math.round(fracOfDay * (pts.length-1));
     const x = scX(idx), y = scY(e.cm);
     ctx.beginPath();
@@ -770,7 +960,7 @@ function drawTideChart(now) {
     ctx.fillText(`${e.cm}cm`, x, labelY);
     ctx.fillStyle = '#888';
     ctx.font = '10px -apple-system,sans-serif';
-    ctx.fillText(`${String(e.t.getHours()).padStart(2,'0')}:${String(e.t.getMinutes()).padStart(2,'0')}`, x, e.type==='満潮' ? y - 22 : y + 32);
+    ctx.fillText(e.timeStr, x, e.type==='満潮' ? y - 22 : y + 32);
   });
 
   // 現在時刻の縦線
@@ -807,6 +997,10 @@ function renderForecast() {
   const times  = DATA.marine.hourly.time;
   const whs    = DATA.marine.hourly.wave_height;
   const wds    = DATA.marine.hourly.wave_direction;
+  const swhs   = DATA.marine.hourly.swell_wave_height ?? [];
+  const swps   = DATA.marine.hourly.swell_wave_period ?? [];
+  const swds   = DATA.marine.hourly.swell_wave_direction ?? [];
+  const wwhs   = DATA.marine.hourly.wind_wave_height ?? [];
   const wtemps = DATA.weather.hourly?.temperature_2m ?? [];
   const wspdh  = DATA.weather.hourly?.wind_speed_10m ?? [];
   const wdirh  = DATA.weather.hourly?.wind_direction_10m ?? [];
@@ -826,8 +1020,10 @@ function renderForecast() {
     const dateStr = `${t.getMonth()+1}/${t.getDate()}`;
     const dow = ['日','月','火','水','木','金','土'][t.getDay()];
     const hStr = String(t.getHours()).padStart(2,'0');
-    const wh   = (whs[i] ?? 0) * SURF_FACTOR;
-    const wdeg = wds[i] ?? 0;
+    const hourMc = { wave_height: whs[i], swell_wave_height: swhs[i], swell_wave_direction: swds[i], wind_wave_height: wwhs[i], wave_direction: wds[i] };
+    const wh   = effectiveFace(hourMc, SPOT.facing);
+    const swp  = swps[i] ?? null;
+    const wdeg = (swds[i] ?? wds[i]) ?? 0;
     const tmp  = wtemps[i] ?? '—';
     const spd  = wspdh[i] ?? 0;
     const ddeg = wdirh[i] ?? 0;
@@ -837,7 +1033,7 @@ function renderForecast() {
     if (dateStr !== lastDate) {
       if (rows) html += `<div class="fc-table-wrap"><table class="fc-table"><tbody>${rows}</tbody></table></div>`;
       html += `<div class="fc-day-header">📅 今日 ${dateStr}（${dow}）　日出 ${DATA.weather.daily?.sunrise?.[0]?new Date(DATA.weather.daily.sunrise[Math.min(t.getDate()-now.getDate(),3)]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'—'} / 日入 ${DATA.weather.daily?.sunset?.[0]?new Date(DATA.weather.daily.sunset[Math.min(t.getDate()-now.getDate(),3)]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'—'} [${tideTypeName(t)}]</div>`;
-      rows = `<tr><th>時刻</th><th>天気</th><th>気温</th><th>風速</th><th>風向</th><th>波高</th><th>波向</th></tr>`;
+      rows = `<tr><th>時刻</th><th>天気</th><th>気温</th><th>風速</th><th>風向</th><th>サイズ</th><th>周期</th><th>うねり</th></tr>`;
       lastDate = dateStr;
     }
     rows += `<tr class="${isNow?'fc-now':''}">
@@ -846,7 +1042,8 @@ function renderForecast() {
       <td>${typeof tmp==='number'?tmp.toFixed(1)+'℃':'—'}</td>
       <td>${spd.toFixed(1)}m/s</td>
       <td><span class="fc-wind-arrow" style="display:inline-block;transform:rotate(${ddeg}deg)">↑</span><br><span style="font-size:10px">${dir(ddeg)}</span></td>
-      <td class="fc-wh">${wh.toFixed(2)}m</td>
+      <td class="fc-wh">${wh.toFixed(1)}m<br><span style="font-size:9px;color:#5b8ab8;font-weight:700">${jpOne(wh)}</span></td>
+      <td>${swp !== null ? swp.toFixed(0)+'s' : '—'}</td>
       <td><span style="display:inline-block;transform:rotate(${wdeg}deg)">↑</span><br><span style="font-size:10px">${dir(wdeg)}</span></td>
     </tr>`;
   }
@@ -1010,43 +1207,43 @@ function scoreToStars(score) {
   return '⭐'.repeat(n) + '☆'.repeat(5 - n);
 }
 
-// ── コンディション点数（0〜100点） ──
-function surfScore(wh, wp, windDeg, wspd, facing) {
-  // 波高スコア（最大40点）：コシ〜ムネが最高
+// ── コンディション点数（0〜100点）v2: うねり実効サイズ＋うねり周期＋潮 ──
+function surfScore(face, swellPeriod, windDeg, wspd, facing, tideBonus = 0) {
+  // サイズスコア（最大35点）：実効フェイス コシ〜ハラが最高
   let whScore = 0;
-  if      (wh < 0.3)  whScore = 5;
-  else if (wh < 0.5)  whScore = 25;
-  else if (wh < 0.7)  whScore = 33;
-  else if (wh < 0.9)  whScore = 37;
-  else if (wh < 1.1)  whScore = 40;
-  else if (wh < 1.4)  whScore = 38;
-  else if (wh < 1.7)  whScore = 35;
-  else if (wh < 2.0)  whScore = 30;
-  else if (wh < 2.5)  whScore = 23;
-  else                whScore = 15;
+  if      (face < 0.2)  whScore = 2;
+  else if (face < 0.35) whScore = 12;
+  else if (face < 0.5)  whScore = 22;
+  else if (face < 0.7)  whScore = 30;
+  else if (face < 1.0)  whScore = 35;
+  else if (face < 1.3)  whScore = 33;
+  else if (face < 1.6)  whScore = 28;
+  else if (face < 2.0)  whScore = 22;
+  else                  whScore = 13;
 
   // 風向スコア（最大25点）
   const wt = windType(windDeg, facing);
   const wdScore = wt.cls==='off' ? 25 : wt.cls==='sideoff' ? 18 : wt.cls==='sideon' ? 8 : 2;
 
-  // 風速スコア（最大20点）
+  // 風速スコア（最大15点）
   let wsScore = 0;
-  if      (wspd < 2)  wsScore = 20;
-  else if (wspd < 4)  wsScore = 17;
-  else if (wspd < 6)  wsScore = 13;
-  else if (wspd < 8)  wsScore = 8;
-  else if (wspd < 11) wsScore = 4;
+  if      (wspd < 2)  wsScore = 15;
+  else if (wspd < 4)  wsScore = 13;
+  else if (wspd < 6)  wsScore = 10;
+  else if (wspd < 8)  wsScore = 6;
+  else if (wspd < 11) wsScore = 3;
   else                wsScore = 0;
 
-  // 周期スコア（最大15点）
+  // うねり周期スコア（最大20点）：周期が長い＝パワーと整い
   let wpScore = 0;
-  if      (wp >= 12) wpScore = 15;
-  else if (wp >= 10) wpScore = 12;
-  else if (wp >= 8)  wpScore = 8;
-  else if (wp >= 6)  wpScore = 4;
-  else               wpScore = 1;
+  if      (swellPeriod >= 13) wpScore = 20;
+  else if (swellPeriod >= 11) wpScore = 17;
+  else if (swellPeriod >= 9)  wpScore = 13;
+  else if (swellPeriod >= 7)  wpScore = 8;
+  else if (swellPeriod >= 6)  wpScore = 4;
+  else                        wpScore = 1;
 
-  return Math.min(100, whScore + wdScore + wsScore + wpScore);
+  return Math.max(0, Math.min(100, whScore + wdScore + wsScore + wpScore + tideBonus));
 }
 
 function scoreColor(score) {
@@ -1065,7 +1262,7 @@ async function renderSpotList() {
       SPOTS.map(async sp => {
         try {
           const [mRes, wRes] = await Promise.all([
-            fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${sp.lat}&longitude=${sp.lon}&current=wave_height,wave_period,wave_direction&timezone=Asia%2FTokyo`),
+            fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${sp.lat}&longitude=${sp.lon}&current=wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,swell_wave_direction,wind_wave_height&timezone=Asia%2FTokyo`),
             fetch(`https://api.open-meteo.com/v1/forecast?latitude=${sp.lat}&longitude=${sp.lon}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=Asia%2FTokyo`)
           ]);
           const mc = (await mRes.json()).current;
@@ -1087,14 +1284,15 @@ async function renderSpotList() {
           </div>`;
           return;
         }
-        const wh   = (mc.wave_height ?? 0) * SURF_FACTOR;
-        const wp   = mc.wave_period ?? 0;
+        const wh   = effectiveFace(mc, sp.facing);
+        const wp   = mc.swell_wave_period ?? mc.wave_period ?? 0;
         const wdeg = wc.wind_direction_10m ?? 0;
         const wspd = wc.wind_speed_10m ?? 0;
         const wt   = windType(wdeg, sp.facing);
-        const jp   = waveJP(wh);
+        const jp   = bcmSize(wh);
         const wn   = waveNum(wh);
-        const score= surfScore(wh, wp, wdeg, wspd, sp.facing);
+        const tDay = tideDay(sp.area);
+        const score= surfScore(wh, wp, wdeg, wspd, sp.facing, tDay ? tidePrefBonus(sp, tDay) : 0);
         const col  = scoreColor(score);
         const arrowColor = wt.cls==='off' ? '#4aff84' : wt.cls==='sideoff' ? '#a4ff4a' : wt.cls==='sideon' ? '#ffd04a' : '#ff6b4a';
         const isCurrent = sp.id === SPOT.id;
@@ -1146,8 +1344,12 @@ function showTab(tab) {
   if (tab==='weather') renderWeather();
 }
 
-loadAll();
-renderSpotList();
+// v2.0（2026/6/12）うねり分離・3モデル信頼度・NOWPHAS実測・気象庁潮汐・潮の癖スコア
+(async () => {
+  await loadStatic();
+  loadAll();
+  renderSpotList();
+})();
 </script>
 </body>
 </html>
