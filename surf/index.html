@@ -1000,7 +1000,8 @@ function drawTideChart(now) {
         const pk = seg.indexOf(Math.max(...seg));
         const fv = seg[pk];
         ctx.fillStyle = '#1a4a7a';
-        ctx.fillText(`${fv.toFixed(1)}m ${jpOne(fv)}`, xAt(d*24 + pk) + PPH/2, H - PAD.b - (fv/maxF)*bandH - 4);
+        const lx = Math.min(Math.max(xAt(d*24 + pk) + PPH/2, xAt(d*24) + 32), xAt((d+1)*24) - 32);
+        ctx.fillText(`${fv.toFixed(1)}m ${jpOne(fv)}`, lx, H - PAD.b - (fv/maxF)*bandH - 4);
       }
     }
   }
@@ -1472,7 +1473,7 @@ function showTab(tab) {
 }
 
 // v2.5（2026/6/12）うねり分離・3モデル信頼度・NOWPHAS実測・気象庁潮汐・潮の癖スコア・4日間統合グラフ
-const APP_VER = '2.5';
+const APP_VER = '2.6';
 (async () => {
   // 新版が公開されていたら自動で再読み込み（携帯の古いキャッシュ対策）
   try {
