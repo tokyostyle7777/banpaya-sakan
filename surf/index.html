@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="波情報">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<title>波情報 | 和田・白渚</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#e8eef4;color:#222;font-family:-apple-system,'Hiragino Sans',sans-serif;max-width:480px;margin:0 auto;min-height:100vh}
+
+/* ヘッダー */
+.hdr{background:#5b8ab8;padding:10px 14px 0;color:#fff}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.hdr-title{font-size:18px;font-weight:700;letter-spacing:1px}
+.hdr-refresh{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0 4px}
+.hdr-tabs{display:flex;gap:2px}
+.htab{flex:1;text-align:center;padding:8px 4px 6px;font-size:13px;color:rgba(255,255,255,0.75);cursor:pointer;border-radius:8px 8px 0 0;background:rgba(255,255,255,0.1)}
+.htab.active{background:#fff;color:#5b8ab8;font-weight:700}
+
+/* タブコンテンツ */
+.tab-body{background:#fff}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* ===== 波情報タブ ===== */
+/* メインビジュアル */
+.wave-visual{position:relative;background:linear-gradient(180deg,#87ceeb 0%,#87ceeb 45%,#5b9bd5 45%,#4a8cc4 60%,#d4a96a 60%,#c9975a 68%,#b8864a 68%,#7a6040 100%);height:210px;overflow:hidden}
+.wave-visual .wv-top{position:absolute;top:10px;right:12px;text-align:right;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5);font-size:12px;line-height:1.6}
+.wave-visual .wv-size-block{position:absolute;top:12px;left:14px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.6)}
+.wv-tri{font-size:28px;color:#5ee8ff;line-height:1}
+.wv-num{font-size:56px;font-weight:700;color:#5ee8ff;line-height:1;margin-left:2px}
+.wv-jpname{font-size:15px;font-weight:600;color:#fff;margin-top:2px}
+/* 風向矢印（大） */
+.wind-arrow-wrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-40%);pointer-events:none}
+.wind-arr-svg{width:140px;height:60px;opacity:0.85}
+.side-label{position:absolute;top:55%;left:50%;transform:translateX(-50%);font-size:20px;font-weight:900;color:rgba(255,255,255,0.9);text-shadow:0 1px 6px rgba(0,0,0,0.5);letter-spacing:2px}
+/* 砂浜の人 */
+.surfer-wrap{position:absolute;bottom:42%;left:14px}
+.surfer-svg{width:50px;height:90px;opacity:0.9}
+/* ビーチ下部 */
+.wave-info-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.25);display:flex;align-items:center;gap:12px;padding:5px 12px;font-size:12px;color:#fff}
+
+/* データカード */
+.data-cards{display:flex;border-bottom:1px solid #e0e0e0}
+.dc{flex:1;display:flex;align-items:center;gap:6px;padding:10px 12px;border-right:1px solid #e0e0e0}
+.dc:last-child{border-right:none}
+.dc-icon{font-size:22px}
+.dc-label{font-size:10px;color:#888;display:block}
+.dc-val{font-size:15px;font-weight:700;color:#5b8ab8}
+
+/* コンディション */
+.cond-section{padding:12px 14px;border-bottom:1px solid #e8e8e8}
+.cond-title{font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px}
+.cond-row{display:flex;padding:4px 0;border-bottom:1px dotted #eee;font-size:13px}
+.cond-row:last-child{border-bottom:none}
+.cond-key{color:#5b8ab8;font-weight:600;width:50px;flex-shrink:0}
+.cond-val{color:#444;flex:1}
+
+/* カメラリンク */
+.cam-section{padding:12px 14px;border-bottom:1px solid #e8e8e8}
+.cam-title{font-size:14px;font-weight:700;color:#5b8ab8;margin-bottom:8px}
+.cam-links{display:flex;flex-direction:column;gap:6px}
+.cam-link{display:flex;align-items:center;gap:8px;background:#f0f6ff;border-radius:8px;padding:8px 12px;text-decoration:none;color:#333;font-size:13px}
+.cam-link-icon{font-size:18px}
+
+/* ===== タイドタブ ===== */
+.tide-header{background:#f8f9fa;border-bottom:1px solid #e0e0e0;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.tide-date{font-size:15px;font-weight:700;color:#5b8ab8}
+.tide-type-badge{background:#5b8ab8;color:#fff;font-size:12px;padding:3px 8px;border-radius:12px}
+.tide-sun{font-size:12px;color:#888;display:flex;gap:12px}
+.tide-graph-wrap{background:#e8f0f8;padding:14px;position:relative}
+canvas#tideChart{width:100%!important;display:block}
+.tide-extremes{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:10px 12px;background:#fff;border-bottom:1px solid #e0e0e0}
+.te-item{text-align:center;background:#f0f6ff;border-radius:8px;padding:6px 4px}
+.te-type{font-size:10px;color:#888;margin-bottom:2px}
+.te-time{font-size:14px;font-weight:700;color:#333}
+.te-cm{font-size:12px;color:#5b8ab8;font-weight:600}
+
+/* ===== 予報タブ ===== */
+.fc-toggle{display:flex;margin:10px 12px;border:2px solid #5b8ab8;border-radius:8px;overflow:hidden}
+.fc-toggle-btn{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#5b8ab8}
+.fc-toggle-btn.active{background:#5b8ab8;color:#fff}
+.fc-day-header{background:#e8eef4;padding:8px 14px;font-size:14px;font-weight:700;color:#5b8ab8;border-top:2px solid #5b8ab8}
+.fc-table-wrap{overflow-x:auto;border-bottom:2px solid #5b8ab8}
+.fc-table{border-collapse:collapse;min-width:100%;font-size:12px;background:#fff}
+.fc-table th{background:#dce8f4;padding:5px 8px;text-align:center;white-space:nowrap;border-right:1px solid #ccc;color:#555;font-weight:600;font-size:11px;position:sticky;left:0;z-index:1}
+.fc-table td{padding:7px 10px;text-align:center;border-right:1px solid #eee;border-bottom:1px solid #eee;white-space:nowrap}
+.fc-table tr:nth-child(even) td{background:#f8fbff}
+.fc-now td{background:#fff3cd!important}
+.fc-wind-arrow{display:inline-block;font-size:16px}
+.fc-wh{font-weight:700;color:#5b8ab8}
+
+/* カメラセクション */
+.cam-section{padding:12px 14px;border-bottom:1px solid #e8e8e8}
+.cam-title{font-size:14px;font-weight:700;color:#5b8ab8;margin-bottom:8px}
+.cam-area-header{font-size:13px;font-weight:700;color:#fff;background:#5b8ab8;border-radius:6px;padding:4px 10px;margin-bottom:6px}
+.cam-links{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.cam-link{display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600}
+.cam-link-icon{font-size:20px;flex-shrink:0}
+.cam-sub{font-size:11px;color:#888;font-weight:400;display:block;margin-top:1px}
+
+/* ローディング */
+.loading{text-align:center;padding:60px 20px;color:#5b8ab8}
+.spin{font-size:36px;animation:spin 1.5s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err{background:#ffeaea;border-radius:8px;padding:12px;margin:12px;font-size:13px;color:#c00}
+
+/* ===== 一覧タブ ===== */
+.spot-area-hdr{background:#dce8f4;padding:7px 14px;font-size:12px;font-weight:700;color:#5b8ab8;letter-spacing:1px}
+.spot-card{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid #eee;cursor:pointer;background:#fff;gap:10px;-webkit-tap-highlight-color:rgba(91,138,184,0.1)}
+.spot-card.current{background:#f0f6ff}
+.spot-visual{width:66px;height:62px;border-radius:8px;overflow:hidden;flex-shrink:0;background:linear-gradient(180deg,#87ceeb 0%,#5b9bd5 55%,#d4a96a 55%,#b8864a 100%);position:relative;display:flex;align-items:center;justify-content:center}
+.spot-info{flex:1;min-width:0}
+.spot-name{font-size:14px;font-weight:700;color:#333}
+.spot-jp{font-size:12px;color:#5b8ab8;font-weight:600;margin-top:1px}
+.spot-wind-row{font-size:11px;color:#888;margin-top:2px}
+.spot-score-wrap{flex-shrink:0;text-align:right;min-width:72px}
+.spot-stars{font-size:14px;line-height:1.3;letter-spacing:1px}
+.spot-wave-score{font-size:18px;font-weight:900;color:#5b8ab8;line-height:1;margin-top:3px}
+.spot-wave-score span{font-size:10px;color:#888;font-weight:400}
+.spot-wh-small{font-size:11px;color:#5b8ab8;font-weight:600;margin-top:2px}
+
+/* ボトムナビ */
+.bnav{height:60px} /* スペーサー */
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div style="font-size:13px;color:rgba(255,255,255,0.8)" id="checkTime">読み込み中...</div>
+    <div class="hdr-title" id="spotTitle" onclick="openSpotMenu()" style="cursor:pointer;user-select:none">和田・白渚 ▾</div>
+    <button class="hdr-refresh" onclick="loadAll()" title="更新">↻</button>
+  </div>
+  <div class="hdr-tabs">
+    <div class="htab active" onclick="showTab('list')">一覧</div>
+    <div class="htab" onclick="showTab('wave')">波情報</div>
+    <div class="htab" onclick="showTab('tide')">タイド</div>
+    <div class="htab" onclick="showTab('weather')">気象</div>
+  </div>
+</div>
+
+<!-- 一覧タブ -->
+<div class="tab-pane active" id="pane-list">
+  <div id="listContent"><div class="loading"><div class="spin">🌊</div><br>全スポット取得中...</div></div>
+</div>
+
+<!-- 波情報タブ -->
+<div class="tab-pane" id="pane-wave">
+  <div id="waveContent"><div class="loading"><div class="spin">🌊</div><br>データ取得中...</div></div>
+</div>
+
+<!-- タイドタブ（タイドグラフ＋時間予報 統合） -->
+<div class="tab-pane" id="pane-tide">
+  <div id="tideContent"><div class="loading"><div class="spin">🌊</div><br>潮汐計算中...</div></div>
+  <div class="fc-toggle" style="margin-top:0;border-top:2px solid #5b8ab8">
+    <div class="fc-toggle-btn active" id="btn1h" onclick="setFcInterval(1)">1時間表示</div>
+    <div class="fc-toggle-btn" id="btn3h" onclick="setFcInterval(3)">3時間表示</div>
+  </div>
+  <div id="forecastContent"><div class="loading"><div class="spin">📊</div><br>予報取得中...</div></div>
+</div>
+
+<!-- 気象タブ -->
+<div class="tab-pane" id="pane-weather">
+  <div id="weatherContent"><div class="loading"><div class="spin">🌀</div><br>気象データ取得中...</div></div>
+</div>
+
+<div class="bnav"></div>
+
+<!-- スポット選択モーダル -->
+<div id="spotMenu" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:2000" onclick="if(event.target===this)closeSpotMenu()">
+  <div style="background:#fff;margin:50px auto 20px;max-width:480px;border-radius:14px;overflow:hidden;max-height:80vh;display:flex;flex-direction:column">
+    <div style="background:#5b8ab8;padding:14px 16px;color:#fff;font-size:16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+      📍 スポット選択
+      <button onclick="closeSpotMenu()" style="background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1">×</button>
+    </div>
+    <div id="spotList" style="overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
+  </div>
+</div>
+
+<script>
+// 沖合有義波高（Hs）→ 浜辺実感サイズへの補正係数
+// Open Meteoの wave_height は外洋Hsで、実際の波のフェイスは約0.7倍が実態に近い
+const SURF_FACTOR = 0.70;
+
+// ── スポット一覧（A: スポット切替 / B: 地形メモ） ──
+const SPOTS = [
+  // 千葉南
+  { id:'shirasuna',  name:'和田・白渚',     lat:35.063, lon:140.018, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', note:'ホームポイント。南向きでオフショア◎。広くて入りやすく波数も多い' },
+  { id:'wada_js',    name:'和田・J\'s前',   lat:35.058, lon:140.022, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', note:'地元のホットスポット。干潮〜中間が掘れやすい' },
+  { id:'wada_hakaso',name:'和田・墓下',     lat:35.055, lon:140.025, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', note:'和田エリア北側。干潮時に掘れやすく力強いブレイク' },
+  { id:'ohara',      name:'大原駐車場前',   lat:35.270, lon:140.390, facing:100, area:'千葉南', type:'砂浜',    level:'初〜中', note:'いすみ市。スタンダードなビーチブレイク。駐車場直前' },
+  { id:'hanago',     name:'花籠',           lat:35.233, lon:140.362, facing:110, area:'千葉南', type:'砂浜',    level:'初〜中', note:'いすみ市。うねりに敏感でコシ前後から入りやすい' },
+  { id:'bihara',     name:'部原・メイン',   lat:35.117, lon:140.272, facing:135, area:'千葉南', type:'砂浜',    level:'初〜上', note:'南系うねりで反応◎。千葉南の代表的ポイント' },
+  { id:'katsuura',   name:'勝浦',           lat:35.150, lon:140.300, facing:150, area:'千葉南', type:'砂浜',    level:'初〜中', note:'湾内のため風の影響を受けにくい。初心者も入りやすい' },
+  { id:'chitose',    name:'千歳',           lat:35.220, lon:140.443, facing:100, area:'千葉南', type:'砂浜/岩礁', level:'中〜上', note:'リーフあり・要注意。沖でいい波が入ることも。上級者向き' },
+  { id:'kamogawa',       name:'鴨川・マルキ',       lat:35.118, lon:140.100, facing:160, area:'千葉南', type:'砂浜',    level:'初〜中', note:'鴨川の定番ポイント。うねりに敏感。近くに鴨川シーサイドカメラ' },
+  { id:'matsuzakigawa',  name:'待崎川河口',         lat:35.127, lon:140.092, facing:135, area:'千葉南', type:'砂浜/河口', level:'初〜中', note:'横渚エリア。待崎川と海の合流点。南東うねりで反応。波のスケッチYouTubeライブカメラあり' },
+  { id:'seaside_kamogawa', name:'シーサイド（前原）', lat:35.106, lon:140.099, facing:155, area:'千葉南', type:'砂浜',    level:'初〜中', note:'ノンキーサーフ目の前。前原海水浴場エリア。鴨川を代表するポイントのひとつ。YouTubeライブカメラあり' },
+  { id:'malibu',     name:'マリブポイント', lat:35.147, lon:140.261, facing:155, area:'千葉南', type:'🪨リーフ', level:'中〜上', note:'勝浦市串浜。台風・強い南うねりでブレイク。WCT会場実績あり。リーフにつき足元注意' },
+  // 千葉北
+  { id:'shidashita', name:'志田下',         lat:35.375, lon:140.372, facing:90,  area:'千葉北', type:'砂浜',    level:'中〜上', note:'千葉北ナンバーワンのパワフルなビーチブレイク。カレントに注意' },
+  { id:'ichinomiya', name:'一宮',           lat:35.373, lon:140.370, facing:90,  area:'千葉北', type:'砂浜',    level:'初〜上', note:'釣ヶ崎海岸・五輪会場。南〜南東うねりで◎。カメラ多数あり' },
+  { id:'sunrise',    name:'サンライズ',     lat:35.330, lon:140.330, facing:90,  area:'千葉北', type:'砂浜',    level:'初〜中', note:'一宮エリア。早朝の朝日と波が美しい' },
+  { id:'torami',     name:'東浪見',         lat:35.350, lon:140.400, facing:90,  area:'千葉北', type:'砂浜',    level:'初〜中', note:'シーサイドオーツカ前。一宮より空いていることが多い' },
+  // 南房総
+  { id:'chikura',    name:'千倉',           lat:34.983, lon:139.972, facing:225, area:'南房総', type:'砂浜',    level:'初〜中', note:'南西向き。台風・南岸低気圧後のうねりで◎' },
+  { id:'hirasuna',   name:'平砂浦',         lat:34.930, lon:139.880, facing:270, area:'南房総', type:'砂浜',    level:'初〜中', note:'西向きの広大なビーチ。夏場は南西風でオフショアになりやすい' },
+  { id:'minamiboso', name:'南房総（浦賀水道）', lat:34.970, lon:139.890, facing:330, area:'南房総', type:'砂浜', level:'初〜中', note:'東京湾口。北西風でオフショア。冬場の南うねり狙い' },
+  { id:'tomoe',      name:'巴ポイント',     lat:34.898, lon:139.863, facing:240, area:'南房総', type:'🪨リーフ', level:'上級',  note:'館山市富崎。強い南〜南西うねり限定のリーフブレイク。ロングライド可。上級者のみ入水' },
+  // 内房（東京湾）
+  { id:'shimoshu',   name:'下洲',           lat:35.336, lon:139.814, facing:310, area:'内房', type:'砂浜',    level:'初〜中', note:'富津市下洲海岸。東京湾内。広大な砂浜。北西風でオフショア。波は穏やか・台風余波時に期待' },
+  { id:'shinobe',    name:'篠部',           lat:35.296, lon:139.834, facing:310, area:'内房', type:'砂浜',    level:'初〜中', note:'富津市。富津岬北側。東京湾内。ヴィレッジ富津海岸近く。北西風でオフショア' },
+  { id:'isonezaki',  name:'磯根崎',         lat:35.306, lon:139.808, facing:270, area:'内房', type:'岩礁',    level:'中〜上', note:'富津市・富津岬先端。景勝地。岩礁で波が立ちやすい。東京湾内だが強風時に期待' },
+  { id:'kazusa',     name:'上総湊',         lat:35.224, lon:139.849, facing:290, area:'内房', type:'砂浜',    level:'初〜中', note:'富津市。上総湊港海浜公園。穏やかな東京湾。波は期待薄だが景色は抜群' },
+  { id:'takeoka',    name:'竹岡',           lat:35.213, lon:139.849, facing:285, area:'内房', type:'砂浜',    level:'初〜中', note:'富津市竹岡。東京湾内の穏やかなポイント。VISTA BLUEレンタルスタジオ近く' },
+  { id:'hota',       name:'保田',           lat:35.107, lon:139.832, facing:270, area:'内房', type:'砂浜',    level:'初〜中', note:'鋸南町保田。東京湾内。鋸山の麓。波は小さめ。北〜北西風でオフショア' },
+  { id:'namugaya',   name:'南無谷',         lat:35.022, lon:139.843, facing:265, area:'内房', type:'砂浜',    level:'初〜中', note:'富浦町南無谷。東京湾内・南寄り。穏やかな環境。台風余波時にのみ期待' },
+  // 湘南
+  { id:'kamataka',   name:'鎌高前',         lat:35.327, lon:139.554, facing:180, area:'湘南',   type:'砂浜',    level:'初〜上', note:'鎌倉高校前の有名ポイント。富士山が見える。混雑注意' },
+  { id:'shichirigahama', name:'七里ヶ浜正面', lat:35.318, lon:139.530, facing:180, area:'湘南', type:'砂浜',    level:'中〜上', note:'湘南の定番ポイント。混雑しやすいが波は本物' },
+];
+
+let SPOT = SPOTS.find(s => s.id === 'shirasuna');
+let DATA = null;
+let FC_INTERVAL = 1;
+
+// ── スポットメニュー ──
+function openSpotMenu() {
+  const areas = [...new Set(SPOTS.map(s => s.area))];
+  let html = '';
+  areas.forEach(area => {
+    html += `<div style="background:#dce8f4;padding:7px 14px;font-size:12px;font-weight:700;color:#5b8ab8;letter-spacing:1px">${area}</div>`;
+    SPOTS.filter(s => s.area === area).forEach(s => {
+      const active = s.id === SPOT.id;
+      html += `<div onclick="selectSpot('${s.id}')" style="padding:11px 14px;border-bottom:1px solid #f0f0f0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;${active?'background:#f0f6ff;':''}" >
+        <div>
+          <div style="font-size:14px;font-weight:${active?'700':'600'};color:${active?'#5b8ab8':'#333'}">${s.name}</div>
+          <div style="font-size:11px;color:#888;margin-top:2px">${s.type} / ${s.level}</div>
+        </div>
+        ${active ? '<span style="color:#5b8ab8;font-size:18px">✓</span>' : ''}
+      </div>`;
+    });
+  });
+  document.getElementById('spotList').innerHTML = html;
+  document.getElementById('spotMenu').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSpotMenu() {
+  document.getElementById('spotMenu').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function selectSpot(spotId) {
+  SPOT = SPOTS.find(s => s.id === spotId) || SPOT;
+  document.getElementById('spotTitle').textContent = SPOT.name + ' ▾';
+  document.title = `波情報 | ${SPOT.name}`;
+  closeSpotMenu();
+  DATA = null;
+  loadAll();
+}
+
+// ── 方向・コンディション計算 ──
+const DIR_LABELS = ['北','北北東','北東','東北東','東','東南東','南東','南南東','南','南南西','南西','西南西','西','西北西','北西','北北西'];
+const ARROW_CHARS = ['↑','↗','↗','→','→','↘','↘','↓','↓','↙','↙','←','←','↖','↖','↑'];
+const dir = d => DIR_LABELS[Math.round(d/22.5)%16];
+const arrChar = d => ARROW_CHARS[Math.round(d/22.5)%16];
+
+function windType(windDeg, facing) {
+  let diff = ((windDeg - facing) + 360) % 360;
+  if (diff > 180) diff = 360 - diff;
+  const cross = ((windDeg - facing + 360) % 360) < 180;
+  if (diff <= 30)  return {label:'オンショア', short:'ON', cls:'on'};
+  if (diff <= 70)  return {label: cross ? 'サイドオン' : 'サイドオン', short:'SIDE\nON', cls:'sideon'};
+  if (diff <= 120) return {label: cross ? 'サイドオフ' : 'サイドオフ', short:'SIDE\nOFF', cls:'sideoff'};
+  return {label:'オフショア', short:'OFF', cls:'off'};
+}
+
+function windStr(spd) {
+  if (spd < 3)  return '';
+  if (spd < 5)  return '（弱）';
+  if (spd < 8)  return '（やや強）';
+  if (spd < 12) return '（強）';
+  return '（非常に強）';
+}
+
+function waveJP(h) {
+  if (h < 0.3) return 'ヒザ以下';
+  if (h < 0.5) return 'ヒザ';
+  if (h < 0.7) return 'モモ';
+  if (h < 0.9) return 'コシ';
+  if (h < 1.2) return 'ハラ';
+  if (h < 1.5) return 'ハラ〜ムネ';
+  if (h < 1.7) return 'ムネ';
+  if (h < 2.0) return 'ムネ〜カタ';
+  if (h < 2.4) return 'カタ〜カオ';
+  if (h < 3.0) return 'アタマ';
+  return 'オーバーヘッド';
+}
+
+function waveNum(h) {
+  // BCM▽スケール近似
+  if (h < 0.3) return {num:'×5', isX:true};
+  if (h < 0.5) return {num:'×10', isX:true};
+  if (h < 0.8) return {num:'10', isX:false};
+  if (h < 1.1) return {num:'15', isX:false};
+  if (h < 1.4) return {num:'20', isX:false};
+  if (h < 1.7) return {num:'25', isX:false};
+  if (h < 2.0) return {num:'30', isX:false};
+  if (h < 2.5) return {num:'35', isX:false};
+  return {num:'40+', isX:false};
+}
+
+function conditionText(wh, wp, wt) {
+  const face = {
+    wave: wt.cls==='off' && wp>8 ? 'クリーン' :
+          wt.cls==='sideoff' && wp>7 ? 'まぁまぁ' :
+          wt.cls==='sideon' ? 'やや荒れ' : '荒れ',
+    swell: wp>10 ? 'まとまったうねり' : wp>8 ? 'ほぼまとまっている' : wp>6 ? 'ややまとまりがない状態' : 'まとまりがない状態',
+    count: wh>1.2 ? 'セットが入る。波数はある' : wh>0.7 ? '波数はほどほど' : '波数は少ない',
+    pos: '—'
+  };
+  return face;
+}
+
+// ── 天気コード絵文字 ──
+function weatherEmoji(code) {
+  if (code === 0) return '☀️';
+  if (code <= 3)  return '🌤️';
+  if (code <= 48) return '🌫️';
+  if (code <= 57) return '🌦️';
+  if (code <= 67) return '🌧️';
+  if (code <= 77) return '❄️';
+  if (code <= 82) return '🌧️';
+  if (code <= 86) return '🌨️';
+  return '⛈️';
+}
+
+// ── 潮汐サイン近似（和田浦基準） ──
+// 参照: 2026/04/28 02:35 JST = 満潮 134cm
+const TIDE_REF   = new Date('2026-04-28T02:35:00+09:00').getTime();
+const TIDE_PERIOD = 12.42 * 3600 * 1000;
+const TIDE_AMP   = 38;
+const TIDE_MEAN  = 90;
+function tideCm(d) {
+  const dt = d.getTime() - TIDE_REF;
+  return Math.round(TIDE_MEAN + TIDE_AMP * Math.cos(2 * Math.PI * dt / TIDE_PERIOD));
+}
+
+// 極値（干満潮）を検出
+function getTideExtremes(baseDate, hours=48) {
+  const pts = [];
+  for (let m = 0; m <= hours*60; m += 10) {
+    const t = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), 0, m);
+    pts.push({t, cm: tideCm(t)});
+  }
+  const ex = [];
+  for (let i = 1; i < pts.length-1; i++) {
+    const p = pts[i-1].cm, c = pts[i].cm, n = pts[i+1].cm;
+    if (c > p && c > n) ex.push({...pts[i], type:'満潮'});
+    if (c < p && c < n) ex.push({...pts[i], type:'干潮'});
+  }
+  return ex;
+}
+
+// 月齢から潮の種類
+function tideTypeName(date) {
+  const ref = new Date('2000-01-06T18:14:00Z').getTime();
+  const days = (date - ref) / 86400000;
+  const phase = ((days % 29.53058867) + 29.53058867) % 29.53058867;
+  if (phase < 1.5 || phase > 28 || (phase > 13.5 && phase < 16)) return '大潮';
+  if ((phase >= 1.5 && phase < 4) || (phase >= 11 && phase < 13.5) || (phase >= 16 && phase < 18) || (phase >= 25 && phase < 28)) return '中潮';
+  if ((phase >= 4 && phase < 7) || (phase >= 18 && phase < 21)) return '小潮';
+  if ((phase >= 7 && phase < 8) || (phase >= 21 && phase < 22)) return '長潮';
+  if ((phase >= 8 && phase < 9.5) || (phase >= 22 && phase < 24)) return '若潮';
+  return '中潮';
+}
+
+// ── APIデータ取得 ──
+async function loadAll() {
+  document.getElementById('checkTime').textContent = '更新中...';
+  try {
+    const [mRes, wRes] = await Promise.all([
+      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${SPOT.lat}&longitude=${SPOT.lon}&current=wave_height,wave_period,wave_direction,sea_surface_temperature&hourly=wave_height,wave_period,wave_direction,sea_surface_temperature&timezone=Asia%2FTokyo&forecast_days=4`),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${SPOT.lat}&longitude=${SPOT.lon}&current=wind_speed_10m,wind_direction_10m,temperature_2m,weather_code&hourly=wind_speed_10m,wind_direction_10m,temperature_2m,weather_code,precipitation_probability&daily=sunrise,sunset&wind_speed_unit=ms&timezone=Asia%2FTokyo&forecast_days=4`)
+    ]);
+    DATA = { marine: await mRes.json(), weather: await wRes.json() };
+    const now = new Date();
+    document.getElementById('checkTime').textContent = `check ${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    renderWave();
+    renderTide();
+    renderForecast();
+  } catch(e) {
+    document.getElementById('checkTime').textContent = '取得失敗';
+    ['waveContent','tideContent','forecastContent'].forEach(id => {
+      document.getElementById(id).innerHTML = `<div class="err">⚠️ データ取得失敗。通信状況を確認してください。<br><small>${e.message}</small></div>`;
+    });
+  }
+}
+
+// ── 波情報タブ描画 ──
+function renderWave() {
+  const mc = DATA.marine.current;
+  const wc = DATA.weather.current;
+  const wh   = (mc.wave_height ?? 0) * SURF_FACTOR;
+  const wp   = mc.wave_period ?? 0;
+  const sst  = mc.sea_surface_temperature ?? null;
+  const wspd = wc.wind_speed_10m ?? 0;
+  const wdeg = wc.wind_direction_10m ?? 0;
+  const temp = wc.temperature_2m ?? null;
+  const wcode= wc.weather_code ?? 0;
+
+  const wt  = windType(wdeg, SPOT.facing);
+  const wn  = waveNum(wh);
+  const jp  = waveJP(wh);
+  const cond= conditionText(wh, wp, wt);
+  const wdir= dir(wdeg);
+  const wstr= windStr(wspd);
+
+  // 矢印の回転角度（上向き=0度が「北」なので、風向degをそのまま使用）
+  const arrowDeg = wdeg;
+
+  // ビジュアル背景色（サイド判定で変化）
+  const arrowColor = wt.cls==='off' ? '#4aff84' : wt.cls==='sideoff' ? '#a4ff4a' : wt.cls==='sideon' ? '#ffd04a' : '#ff6b4a';
+
+  // 日出・日入（本日）
+  const sunrise = DATA.weather.daily?.sunrise?.[0] ? new Date(DATA.weather.daily.sunrise[0]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '--:--';
+  const sunset  = DATA.weather.daily?.sunset?.[0]  ? new Date(DATA.weather.daily.sunset[0]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '--:--';
+
+  document.getElementById('waveContent').innerHTML = `
+    <!-- メインビジュアル -->
+    <div class="wave-visual">
+      <div class="wv-size-block">
+        <div style="display:flex;align-items:flex-end;gap:2px">
+          <span style="font-size:32px;color:#5ee8ff;font-weight:900">${wn.isX ? wn.num : '▽'}</span>
+          <span style="font-size:58px;font-weight:900;color:#5ee8ff;line-height:1">${wn.isX ? '' : wn.num}</span>
+        </div>
+        <div class="wv-jpname">${jp}</div>
+      </div>
+      <div class="wv-top">
+        ${wspd.toFixed(1)}m/s<br>${wdir}<br>${wt.label}
+      </div>
+      <!-- 風向矢印 -->
+      <div style="position:absolute;top:42%;left:50%;transform:translate(-50%,-50%)">
+        <div style="transform:rotate(${arrowDeg}deg);width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:70px solid ${arrowColor};opacity:0.8;margin:auto"></div>
+      </div>
+      <div class="side-label">${wt.short.replace('\n',' ')}</div>
+      <!-- 人シルエット -->
+      <div style="position:absolute;bottom:32%;left:16px;font-size:60px;opacity:0.85">🏄</div>
+      <div class="wave-info-bar">
+        <span>👥 —人</span>
+        <span>☀️ ${weatherEmoji(wcode)} ${temp !== null ? temp.toFixed(1)+'℃' : ''}</span>
+        <span>🌅 ${sunrise}</span>
+        <span>🌇 ${sunset}</span>
+      </div>
+    </div>
+
+    <!-- データカード -->
+    <div class="data-cards">
+      <div class="dc">
+        <div class="dc-icon">🤿</div>
+        <div>
+          <span class="dc-label">服装</span>
+          <span class="dc-val">${(sst??20) < 18 ? 'フルスーツ' : (sst??20) < 22 ? 'ジャージフル' : 'タッパー'}</span>
+        </div>
+      </div>
+      <div class="dc">
+        <div class="dc-icon">🌡️</div>
+        <div>
+          <span class="dc-label">水温</span>
+          <span class="dc-val">${sst !== null ? sst.toFixed(1)+'℃' : '--℃'}</span>
+        </div>
+      </div>
+      <div class="dc">
+        <div class="dc-icon">🌊</div>
+        <div>
+          <span class="dc-label">波高/周期</span>
+          <span class="dc-val">${wh.toFixed(2)}m / ${wp.toFixed(0)}s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- コンディション -->
+    <div class="cond-section">
+      <div class="cond-title">コンディション</div>
+      <div class="cond-row"><span class="cond-key">波　面</span><span class="cond-val">${cond.face}</span></div>
+      <div class="cond-row"><span class="cond-key">ウネリ</span><span class="cond-val">${cond.swell}</span></div>
+      <div class="cond-row"><span class="cond-key">波　数</span><span class="cond-val">${cond.count}</span></div>
+      <div class="cond-row"><span class="cond-key">風　速</span><span class="cond-val">${wspd.toFixed(1)}m/s ${wstr} ${wdir}</span></div>
+      <div style="margin-top:8px;background:#f0f6ff;border-radius:6px;padding:8px 10px;font-size:12px;color:#444;line-height:1.6">
+        <span style="font-weight:700;color:#5b8ab8">📍 ${SPOT.type} / ${SPOT.level}　</span>${SPOT.note}
+      </div>
+    </div>
+
+    <!-- 無料カメラ・波情報リンク -->
+    <div class="cam-section">
+
+      <div class="cam-area-header">🏠 千葉南（ホームポイント）</div>
+      <div class="cam-links">
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E5%92%8C%E7%94%B0/" target="_blank">
+          <span class="cam-link-icon">🎥</span>
+          <div><b>カメラ｜和田・J's前 / 白渚 / 大原 / 花籠</b><br><span class="cam-sub">Surfers' Ocean（無料）</span></div>
+        </a>
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E5%8D%83%E5%80%89/" target="_blank">
+          <span class="cam-link-icon">🎥</span>
+          <div><b>カメラ｜千倉 / 千歳</b><br><span class="cam-sub">Surfers' Ocean（無料）</span></div>
+        </a>
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E9%83%A8%E5%8E%9F/" target="_blank">
+          <span class="cam-link-icon">🎥</span>
+          <div><b>カメラ｜部原・メイン / 勝浦</b><br><span class="cam-sub">Surfers' Ocean（無料）</span></div>
+        </a>
+        <a class="cam-link" href="https://sc-chikura.com/blog/" target="_blank">
+          <span class="cam-link-icon">📝</span>
+          <div><b>ショップブログ｜サザンコースト（千倉）</b><br><span class="cam-sub">毎朝「今朝の千倉の波」更新・日本式サイズ表記</span></div>
+        </a>
+      </div>
+
+      <div class="cam-area-header" style="margin-top:10px">🦆 鴨川エリア（待崎川河口・シーサイド・前原）</div>
+      <div class="cam-links">
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E9%B4%A8%E5%B7%9D/" target="_blank">
+          <span class="cam-link-icon">🎥</span>
+          <div><b>カメラ｜鴨川（マルキ・シーサイド・前原）</b><br><span class="cam-sub">Surfers' Ocean（無料）</span></div>
+        </a>
+        <a class="cam-link" href="https://www.youtube.com/channel/UCEDn0tLxpVqEvI3NJyE2DRA/videos" target="_blank">
+          <span class="cam-link-icon">▶️</span>
+          <div><b>YouTubeライブ｜波のスケッチ（前原・横渚・待崎川）</b><br><span class="cam-sub">前原海岸・シーサイド・待崎川河口が見えるYouTubeライブ</span></div>
+        </a>
+        <a class="cam-link" href="http://www.nonkey.net/" target="_blank">
+          <span class="cam-link-icon">🏄</span>
+          <div><b>ノンキーサーフ＆スポーツ（前原）</b><br><span class="cam-sub">鴨川の老舗ショップ・シーサイド目の前・波情報あり</span></div>
+        </a>
+      </div>
+
+      <div class="cam-area-header" style="margin-top:10px">🏄 千葉北（志田下・一宮・東浪見）</div>
+      <div class="cam-links">
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E5%BF%97%E7%94%B0%E4%B8%8B/" target="_blank">
+          <span class="cam-link-icon">🎥</span>
+          <div><b>カメラ｜志田下（釣ヶ崎）</b><br><span class="cam-sub">Surfers' Ocean（無料）</span></div>
+        </a>
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E4%B8%80%E5%AE%AE/" target="_blank">
+          <span class="cam-link-icon">🎥</span>
+          <div><b>カメラ｜一宮 / サンライズ / 東浪見</b><br><span class="cam-sub">Surfers' Ocean（無料）</span></div>
+        </a>
+        <a class="cam-link" href="https://ameblo.jp/wreathssurf/" target="_blank">
+          <span class="cam-link-icon">📝</span>
+          <div><b>ショップブログ｜WREATHS（志田下前）</b><br><span class="cam-sub">毎日更新・「腹前後/西クリーン」形式</span></div>
+        </a>
+        <a class="cam-link" href="https://www.b132.net/category/blog/wave/" target="_blank">
+          <span class="cam-link-icon">📝</span>
+          <div><b>波情報ブログ｜B132（一宮サーフスクール）</b><br><span class="cam-sub">毎日更新・潮回り・日本式サイズ表記</span></div>
+        </a>
+        <a class="cam-link" href="https://www.instagram.com/surf_garden/" target="_blank">
+          <span class="cam-link-icon">📸</span>
+          <div><b>Instagram｜SURF GARDEN（一宮）</b><br><span class="cam-sub">東浪見海岸前ショップ・波写真</span></div>
+        </a>
+        <a class="cam-link" href="https://www.instagram.com/sequence_surf_store/" target="_blank">
+          <span class="cam-link-icon">📸</span>
+          <div><b>Instagram｜Sequence（東浪見）</b><br><span class="cam-sub">プロスタッフ在籍・波コンディション発信</span></div>
+        </a>
+      </div>
+
+      <div class="cam-area-header" style="margin-top:10px">🌐 データ・マップ</div>
+      <div class="cam-links">
+        <a class="cam-link" href="https://www.windy.com/?waves,35.063,140.018,12" target="_blank">
+          <span class="cam-link-icon">💨</span>
+          <div><b>Windy｜波・風マップ（白渚沖）</b><br><span class="cam-sub">リアルタイム波浪・風向マップ</span></div>
+        </a>
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E5%8D%83%E8%91%89%E5%8D%97/" target="_blank">
+          <span class="cam-link-icon">📊</span>
+          <div><b>千葉南 波情報まとめ</b><br><span class="cam-sub">Surfers' Ocean 全ポイント一覧</span></div>
+        </a>
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E5%8D%83%E8%91%89%E5%8C%97/" target="_blank">
+          <span class="cam-link-icon">📊</span>
+          <div><b>千葉北 波情報まとめ</b><br><span class="cam-sub">Surfers' Ocean 全ポイント一覧</span></div>
+        </a>
+      </div>
+
+      <div class="cam-area-header" style="margin-top:10px">🗾 内房エリア（東京湾・富津〜岩井）</div>
+      <div class="cam-links">
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E5%86%85%E6%88%BF/" target="_blank">
+          <span class="cam-link-icon">🎥</span>
+          <div><b>カメラ｜内房（富津・岩井・原岡）</b><br><span class="cam-sub">Surfers' Ocean（無料）</span></div>
+        </a>
+        <a class="cam-link" href="https://www.mic21.com/clubhouse/bousou/live.php" target="_blank">
+          <span class="cam-link-icon">📺</span>
+          <div><b>ライブカメラ｜金谷サンセットビーチ（浜金谷）</b><br><span class="cam-sub">mic21 ダイビングショップ・2カメラ24時間・海況リアルタイム</span></div>
+        </a>
+        <a class="cam-link" href="https://m.youtube.com/channel/UCf1zdGuQfgQppi4YQ3dgZnw/live" target="_blank">
+          <span class="cam-link-icon">📺</span>
+          <div><b>YouTubeライブ｜新舞子海岸（富津市八幡）</b><br><span class="cam-sub">民宿錦海亭・富士山も見える・24時間配信</span></div>
+        </a>
+        <a class="cam-link" href="https://takeokalife.jimdofree.com/" target="_blank">
+          <span class="cam-link-icon">📺</span>
+          <div><b>ライブカメラ｜竹岡・富士見ヶ丘（富津市）</b><br><span class="cam-sub">高台から東京湾を一望・富士山・伊豆大島も見える</span></div>
+        </a>
+        <a class="cam-link" href="https://www.mboso-etoko.jp/info/livecamera/" target="_blank">
+          <span class="cam-link-icon">🎥</span>
+          <div><b>南房総いいとこどり ライブカメラ</b><br><span class="cam-sub">岩井海岸・原岡（桟橋）・道の駅 公式</span></div>
+        </a>
+        <a class="cam-link" href="https://www.1173life.com/chiba-uchibo" target="_blank">
+          <span class="cam-link-icon">📊</span>
+          <div><b>1173cam 内房エリア波情報まとめ</b><br><span class="cam-sub">リアルタイム波情報・カメラ一覧</span></div>
+        </a>
+        <a class="cam-link" href="https://nowphas.mlit.go.jp/" target="_blank">
+          <span class="cam-link-icon">📡</span>
+          <div><b>ナウファス（NOWPHAS）東京湾</b><br><span class="cam-sub">国土交通省・リアルタイム波高・周期・潮位データ</span></div>
+        </a>
+        <a class="cam-link" href="https://www.windy.com/?waves,35.296,139.834,12" target="_blank">
+          <span class="cam-link-icon">💨</span>
+          <div><b>Windy｜内房（富津エリア）波・風マップ</b><br><span class="cam-sub">うねり・風向・波高をアニメ表示・10日先まで予報</span></div>
+        </a>
+        <a class="cam-link" href="https://www.umitenki.jp/wavesimulator/pref/013" target="_blank">
+          <span class="cam-link-icon">🌊</span>
+          <div><b>海天気.jp｜東京湾 波高シミュレーター</b><br><span class="cam-sub">内房各地点ピンポイント波高・風速・潮汐予報</span></div>
+        </a>
+        <a class="cam-link" href="https://anglers.jp/areas/169" target="_blank">
+          <span class="cam-link-icon">🎣</span>
+          <div><b>アングラーズ｜内房エリア釣果情報</b><br><span class="cam-sub">漁師・釣り人の生の海況レポート・釣果600万件</span></div>
+        </a>
+        <a class="cam-link" href="https://uosoku.com/uchibou/" target="_blank">
+          <span class="cam-link-icon">🐟</span>
+          <div><b>魚速（うおそく）｜内房 釣り場情報</b><br><span class="cam-sub">竹岡・富津岬・保田の海況・釣果まとめ</span></div>
+        </a>
+      </div>
+
+      <div class="cam-area-header" style="margin-top:10px">🐦 鴨川エリア（マルキ・前原・東条）</div>
+      <div class="cam-links">
+        <a class="cam-link" href="https://www.surfers-ocean.com/%E3%82%B5%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E6%B3%A2%E6%83%85%E5%A0%B1/%E9%B4%A8%E5%B7%9D/" target="_blank">
+          <span class="cam-link-icon">🎥</span>
+          <div><b>カメラ｜鴨川（マルキ・東条・シーサイド）</b><br><span class="cam-sub">Surfers' Ocean（無料）</span></div>
+        </a>
+        <a class="cam-link" href="https://www.youtube.com/channel/UCEDn0tLxpVqEvI3NJyE2DRA/live" target="_blank">
+          <span class="cam-link-icon">📺</span>
+          <div><b>YouTubeライブ｜鴨川シーサイド前原海岸</b><br><span class="cam-sub">24時間ライブ配信・癒しの海</span></div>
+        </a>
+      </div>
+
+      <div class="cam-area-header" style="margin-top:10px">🪨 リーフポイント情報（マリブ・巴）</div>
+      <div class="cam-links">
+        <a class="cam-link" href="https://www.instagram.com/malibu_point_katsuura/" target="_blank">
+          <span class="cam-link-icon">📸</span>
+          <div><b>Instagram｜マリブポイント（勝浦）</b><br><span class="cam-sub">台風・強い南うねり時の波情報</span></div>
+        </a>
+        <a class="cam-link" href="https://ameblo.jp/malibupoint/" target="_blank">
+          <span class="cam-link-icon">📝</span>
+          <div><b>ブログ｜マリブポイント（串浜リーフ）</b><br><span class="cam-sub">アメブロ・波情報・ローカル情報</span></div>
+        </a>
+        <a class="cam-link" href="https://malibupoint.net/" target="_blank">
+          <span class="cam-link-icon">🌊</span>
+          <div><b>マリブポイント 公式サイト</b><br><span class="cam-sub">勝浦リーフの波情報・コンディション</span></div>
+        </a>
+        <a class="cam-link" href="https://www.instagram.com/soulove008/" target="_blank">
+          <span class="cam-link-icon">📸</span>
+          <div><b>Instagram｜ソウルラヴ（館山）</b><br><span class="cam-sub">巴エリア近く・南房総南端の波情報発信</span></div>
+        </a>
+        <a class="cam-link" href="https://www.dayoff-pension.com/surf.html" target="_blank">
+          <span class="cam-link-icon">🏠</span>
+          <div><b>DAY OFF ペンション（富崎エリア）</b><br><span class="cam-sub">巴ポイント近くの宿・地元の波情報</span></div>
+        </a>
+      </div>
+    </div>`;
+}
+
+// ── タイドタブ描画 ──
+function renderTide() {
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+  const dow = ['日','月','火','水','木','金','土'][now.getDay()];
+  const tideType = tideTypeName(now);
+
+  const sunrise = DATA.weather.daily?.sunrise?.[0] ? new Date(DATA.weather.daily.sunrise[0]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '--:--';
+  const sunset  = DATA.weather.daily?.sunset?.[0]  ? new Date(DATA.weather.daily.sunset[0]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '--:--';
+
+  const extremes = getTideExtremes(now, 30).filter(e => {
+    return e.t >= new Date(now.getFullYear(), now.getMonth(), now.getDate()) &&
+           e.t < new Date(now.getFullYear(), now.getMonth(), now.getDate()+2);
+  });
+  const todayExtremes = extremes.filter(e => e.t.getDate() === now.getDate()).slice(0,4);
+
+  const fmt = t => `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+
+  document.getElementById('tideContent').innerHTML = `
+    <div class="tide-header">
+      <div>
+        <div class="tide-date">${todayStr}（${dow}）</div>
+        <div class="tide-sun">
+          <span>🌅 SUNRISE ${sunrise}</span>
+          <span>🌇 SUNSET ${sunset}</span>
+        </div>
+      </div>
+      <div class="tide-type-badge">${tideType}</div>
+    </div>
+    <div class="tide-graph-wrap">
+      <canvas id="tideChart" height="120"></canvas>
+    </div>
+    <div class="tide-extremes">
+      ${todayExtremes.map(e => `
+        <div class="te-item">
+          <div class="te-type">${e.type}</div>
+          <div class="te-time">${fmt(e.t)}</div>
+          <div class="te-cm">${e.cm}cm</div>
+        </div>`).join('')}
+    </div>`;
+
+  // グラフ描画
+  requestAnimationFrame(() => drawTideChart(now));
+}
+
+function drawTideChart(now) {
+  const canvas = document.getElementById('tideChart');
+  if (!canvas) return;
+  canvas.width = canvas.parentElement.offsetWidth;
+  canvas.height = 140;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const PAD = { t:10, b:30, l:8, r:8 };
+
+  // 今日0時〜24時の10分刻み
+  const pts = [];
+  for (let m = 0; m <= 24*60; m += 10) {
+    const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, m);
+    pts.push({ t, cm: tideCm(t) });
+  }
+  const minC = Math.min(...pts.map(p=>p.cm));
+  const maxC = Math.max(...pts.map(p=>p.cm));
+  const scX = i => PAD.l + (i / (pts.length-1)) * (W - PAD.l - PAD.r);
+  const scY = v => PAD.t + (1 - (v - minC) / (maxC - minC)) * (H - PAD.t - PAD.b);
+
+  // 背景グラデ
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, 'rgba(91,139,184,0.4)');
+  grad.addColorStop(1, 'rgba(91,139,184,0.05)');
+  ctx.beginPath();
+  ctx.moveTo(scX(0), H - PAD.b);
+  pts.forEach((p,i) => ctx.lineTo(scX(i), scY(p.cm)));
+  ctx.lineTo(scX(pts.length-1), H - PAD.b);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // ライン
+  ctx.beginPath();
+  ctx.strokeStyle = '#5b8ab8';
+  ctx.lineWidth = 2.5;
+  pts.forEach((p,i) => i===0 ? ctx.moveTo(scX(i), scY(p.cm)) : ctx.lineTo(scX(i), scY(p.cm)));
+  ctx.stroke();
+
+  // 極値にドット+ラベル
+  const ex = getTideExtremes(now, 26).filter(e => e.t.getDate() === now.getDate());
+  ex.forEach(e => {
+    const fracOfDay = (e.t.getHours()*60 + e.t.getMinutes()) / (24*60);
+    const idx = Math.round(fracOfDay * (pts.length-1));
+    const x = scX(idx), y = scY(e.cm);
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI*2);
+    ctx.fillStyle = '#5b8ab8';
+    ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 11px -apple-system,sans-serif';
+    ctx.textAlign = 'center';
+    const labelY = e.type==='満潮' ? y - 10 : y + 20;
+    ctx.fillText(`${e.cm}cm`, x, labelY);
+    ctx.fillStyle = '#888';
+    ctx.font = '10px -apple-system,sans-serif';
+    ctx.fillText(`${String(e.t.getHours()).padStart(2,'0')}:${String(e.t.getMinutes()).padStart(2,'0')}`, x, e.type==='満潮' ? y - 22 : y + 32);
+  });
+
+  // 現在時刻の縦線
+  const nowFrac = (now.getHours()*60 + now.getMinutes()) / (24*60);
+  const nx = PAD.l + nowFrac * (W - PAD.l - PAD.r);
+  ctx.beginPath();
+  ctx.strokeStyle = '#5b8ab8';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.moveTo(nx, 0);
+  ctx.lineTo(nx, H - PAD.b);
+  ctx.stroke();
+
+  // X軸目盛り（0,2,4...24）
+  ctx.fillStyle = '#888';
+  ctx.font = '10px -apple-system,sans-serif';
+  ctx.textAlign = 'center';
+  for (let h = 0; h <= 24; h += 2) {
+    const x = PAD.l + (h/24) * (W - PAD.l - PAD.r);
+    ctx.fillText(h, x, H - 6);
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    ctx.moveTo(x, PAD.t);
+    ctx.lineTo(x, H - PAD.b);
+    ctx.stroke();
+  }
+}
+
+// ── 予報タブ描画 ──
+function renderForecast() {
+  if (!DATA?.marine?.hourly) return;
+  const times  = DATA.marine.hourly.time;
+  const whs    = DATA.marine.hourly.wave_height;
+  const wds    = DATA.marine.hourly.wave_direction;
+  const wtemps = DATA.weather.hourly?.temperature_2m ?? [];
+  const wspdh  = DATA.weather.hourly?.wind_speed_10m ?? [];
+  const wdirh  = DATA.weather.hourly?.wind_direction_10m ?? [];
+  const wcodes = DATA.weather.hourly?.weather_code ?? [];
+  const now    = new Date();
+
+  let html = '';
+  let lastDate = '';
+  let rows = '';
+  const step = FC_INTERVAL;
+
+  for (let i = 0; i < Math.min(times.length, 96); i++) {
+    if (i % step !== 0) continue;
+    const t = new Date(times[i]);
+    if (t < new Date(now.getFullYear(), now.getMonth(), now.getDate())) continue;
+
+    const dateStr = `${t.getMonth()+1}/${t.getDate()}`;
+    const dow = ['日','月','火','水','木','金','土'][t.getDay()];
+    const hStr = String(t.getHours()).padStart(2,'0');
+    const wh   = (whs[i] ?? 0) * SURF_FACTOR;
+    const wdeg = wds[i] ?? 0;
+    const tmp  = wtemps[i] ?? '—';
+    const spd  = wspdh[i] ?? 0;
+    const ddeg = wdirh[i] ?? 0;
+    const wc   = wcodes[i] ?? 0;
+    const isNow= t.getHours()===now.getHours() && t.getDate()===now.getDate();
+
+    if (dateStr !== lastDate) {
+      if (rows) html += `<div class="fc-table-wrap"><table class="fc-table"><tbody>${rows}</tbody></table></div>`;
+      html += `<div class="fc-day-header">📅 今日 ${dateStr}（${dow}）　日出 ${DATA.weather.daily?.sunrise?.[0]?new Date(DATA.weather.daily.sunrise[Math.min(t.getDate()-now.getDate(),3)]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'—'} / 日入 ${DATA.weather.daily?.sunset?.[0]?new Date(DATA.weather.daily.sunset[Math.min(t.getDate()-now.getDate(),3)]).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'—'} [${tideTypeName(t)}]</div>`;
+      rows = `<tr><th>時刻</th><th>天気</th><th>気温</th><th>風速</th><th>風向</th><th>波高</th><th>波向</th></tr>`;
+      lastDate = dateStr;
+    }
+    rows += `<tr class="${isNow?'fc-now':''}">
+      <td><b>${hStr}</b></td>
+      <td>${weatherEmoji(wc)}</td>
+      <td>${typeof tmp==='number'?tmp.toFixed(1)+'℃':'—'}</td>
+      <td>${spd.toFixed(1)}m/s</td>
+      <td><span class="fc-wind-arrow" style="display:inline-block;transform:rotate(${ddeg}deg)">↑</span><br><span style="font-size:10px">${dir(ddeg)}</span></td>
+      <td class="fc-wh">${wh.toFixed(2)}m</td>
+      <td><span style="display:inline-block;transform:rotate(${wdeg}deg)">↑</span><br><span style="font-size:10px">${dir(wdeg)}</span></td>
+    </tr>`;
+  }
+  if (rows) html += `<div class="fc-table-wrap"><table class="fc-table"><tbody>${rows}</tbody></table></div>`;
+  document.getElementById('forecastContent').innerHTML = html || '<div class="err">予報データなし</div>';
+}
+
+function setFcInterval(n) {
+  FC_INTERVAL = n;
+  document.getElementById('btn1h').classList.toggle('active', n===1);
+  document.getElementById('btn3h').classList.toggle('active', n===3);
+  renderForecast();
+}
+
+// ── 気象タブ描画 ──
+async function renderWeather() {
+  const el = document.getElementById('weatherContent');
+  el.innerHTML = '<div class="loading"><div class="spin">🌀</div><br>気象データ取得中...</div>';
+  try {
+    const [tcRes, mapRes] = await Promise.all([
+      fetch('https://www.jma.go.jp/bosai/typhoon/data/targetTc.json'),
+      fetch('https://www.jma.go.jp/bosai/weather_map/data/list.json')
+    ]);
+    const tcData  = await tcRes.json();
+    const mapData = await mapRes.json();
+
+    const mapBase  = 'https://www.jma.go.jp/bosai/weather_map/data/png/';
+    const nearNow  = mapData?.near?.now?.[0];
+    const nearFt24 = mapData?.near?.ft24?.[0];
+    const asiaNow  = mapData?.asia?.now?.[0];
+
+    // 台風情報HTML
+    let tcHtml = '';
+    if (!tcData || tcData.length === 0) {
+      tcHtml = `<div style="background:#e8f5e9;border-radius:8px;padding:10px 14px;color:#388e3c;font-size:13px;font-weight:600">
+        ✅ 現在 台風なし<br>
+        <span style="font-weight:400;color:#555;font-size:12px">南方海上を引き続き監視中</span>
+      </div>`;
+    } else {
+      tcHtml = tcData.map(tc => `
+        <div style="background:#fff3e0;border-left:4px solid #f57c00;border-radius:4px;padding:10px 14px;margin-bottom:8px">
+          <div style="font-weight:700;color:#e65100;font-size:14px">🌀 台風 ${tc.number ?? tc.id ?? ''}</div>
+          <div style="font-size:12px;color:#555;margin-top:4px">${tc.name||''} ${tc.class||''}</div>
+        </div>`).join('');
+    }
+
+    // 天気図imgヘルパー
+    const mapImg = (file, label, note) => {
+      const noteHtml = note ? `<div style="font-size:11px;color:#888;margin-bottom:8px">${note}</div>` : '';
+      return file
+        ? `<div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:6px">${label}</div>
+           ${noteHtml}
+           <img src="${mapBase}${file}" style="width:100%;border-radius:8px;display:block"
+                onerror="this.outerHTML='<div class=\\'err\\'>画像の読み込みに失敗しました</div>'">`
+        : `<div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:6px">${label}</div>
+           <div class="err">データなし</div>`;
+    };
+
+    el.innerHTML = `
+      <!-- 台風情報 -->
+      <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
+        <div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px">🌀 台風情報</div>
+        ${tcHtml}
+      </div>
+
+      <!-- 地上天気図（最新） -->
+      <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
+        ${mapImg(nearNow, '🗺️ 地上天気図（最新）', '')}
+      </div>
+
+      <!-- 24時間予想天気図 -->
+      <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
+        ${mapImg(nearFt24, '📈 24時間予想天気図', '')}
+      </div>
+
+      <!-- アジア天気図 -->
+      <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
+        ${mapImg(asiaNow, '🌏 アジア天気図', '南方海上の熱帯低気圧・台風の早期発見用')}
+      </div>
+
+      <!-- リアルタイムデータ -->
+      <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
+        <div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px">📡 リアルタイムデータ</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <a href="https://nowphas.mlit.go.jp/pastdata" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">🌊</span>
+            <div>ナウファス 実測波高（国交省）<br>
+              <span style="font-size:11px;color:#888;font-weight:400">勝浦・銚子 観測点 リアルタイム</span>
+            </div>
+          </a>
+          <a href="https://www.jma.go.jp/bosai/map.html#5/35/136/&elem=root&typhoon=all&contents=typhoon" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">🌀</span>
+            <div>気象庁 台風進路予報<br>
+              <span style="font-size:11px;color:#888;font-weight:400">台風発生時は進路・うねり到達を確認</span>
+            </div>
+          </a>
+          <a href="https://www.windy.com/?waves,35.063,140.018,6" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">💨</span>
+            <div>Windy 広域波浪マップ<br>
+              <span style="font-size:11px;color:#888;font-weight:400">うねりの発生源・伝播方向を確認</span>
+            </div>
+          </a>
+          <a href="https://www.data.jma.go.jp/waveinf/chart/awjp.html" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">🌊</span>
+            <div>気象庁 沿岸波浪実況図<br>
+              <span style="font-size:11px;color:#888;font-weight:400">今の波高・波向・周期マップ（航空波浪気象）</span>
+            </div>
+          </a>
+          <a href="https://www.data.jma.go.jp/waveinf/chart/fwjp.html" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">📈</span>
+            <div>気象庁 沿岸波浪予想図（24h）<br>
+              <span style="font-size:11px;color:#888;font-weight:400">明日の波高・波向を先読み</span>
+            </div>
+          </a>
+          <a href="https://www.umitenki.jp/top/pref/2/012" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">⛵</span>
+            <div>海天気.jp 千葉エリア<br>
+              <span style="font-size:11px;color:#888;font-weight:400">無料の海・波予報（千葉全域）</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- 天気図の読み方（サーフィン視点） -->
+      <div style="padding:12px 14px">
+        <div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px">📖 天気図の読み方（サーフィン視点）</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          <div style="background:#f0f6ff;border-radius:8px;padding:10px 12px">
+            <div style="font-weight:700;color:#e65100;margin-bottom:4px">🌪️ 南岸低気圧</div>
+            <div style="color:#444;line-height:1.6">本州南岸を通過すると、通過後24〜36hで<b>南〜南東うねり</b>が入る。和田・白渚は<b>面打ち◎</b>。低気圧が東へ抜けるほどうねりが大きくなりやすい。</div>
+          </div>
+          <div style="background:#f0f6ff;border-radius:8px;padding:10px 12px">
+            <div style="font-weight:700;color:#1565c0;margin-bottom:4px">🌀 台風うねり</div>
+            <div style="color:#444;line-height:1.6">台風が南西→東進すると先行してうねりが届く。距離1,000kmで約12〜18h後着。アジア天気図で南方の熱帯低気圧を発見したら3〜5日前行動。</div>
+          </div>
+          <div style="background:#f0f6ff;border-radius:8px;padding:10px 12px">
+            <div style="font-weight:700;color:#2e7d32;margin-bottom:4px">📏 等圧線密度</div>
+            <div style="color:#444;line-height:1.6">等圧線が密集→海上風強い→波面が荒れる。太平洋高気圧の縁でできる南西〜南うねりが千葉南に有利。等圧線が広い（高気圧圏内）→クリーン。</div>
+          </div>
+          <div style="background:#f0f6ff;border-radius:8px;padding:10px 12px">
+            <div style="font-weight:700;color:#6a1b9a;margin-bottom:4px">🏔️ 高気圧の位置</div>
+            <div style="color:#444;line-height:1.6">太平洋高気圧が北上→千葉南に南西風→オフショア◎。高気圧が東海上にあると北東風→千葉北（志田下◎）。朝の弱い陸風（西〜南西）を狙う。</div>
+          </div>
+        </div>
+      </div>`;
+
+  } catch(e) {
+    el.innerHTML = `<div class="err">⚠️ 気象データ取得失敗<br><small>${e.message}</small></div>`;
+  }
+}
+
+// ── ⭐評価（0〜100点 → 星1〜5）──
+function scoreToStars(score) {
+  const n = score >= 80 ? 5 : score >= 60 ? 4 : score >= 40 ? 3 : score >= 20 ? 2 : 1;
+  return '⭐'.repeat(n) + '☆'.repeat(5 - n);
+}
+
+// ── コンディション点数（0〜100点） ──
+function surfScore(wh, wp, windDeg, wspd, facing) {
+  // 波高スコア（最大40点）：コシ〜ムネが最高
+  let whScore = 0;
+  if      (wh < 0.3)  whScore = 5;
+  else if (wh < 0.5)  whScore = 25;
+  else if (wh < 0.7)  whScore = 33;
+  else if (wh < 0.9)  whScore = 37;
+  else if (wh < 1.1)  whScore = 40;
+  else if (wh < 1.4)  whScore = 38;
+  else if (wh < 1.7)  whScore = 35;
+  else if (wh < 2.0)  whScore = 30;
+  else if (wh < 2.5)  whScore = 23;
+  else                whScore = 15;
+
+  // 風向スコア（最大25点）
+  const wt = windType(windDeg, facing);
+  const wdScore = wt.cls==='off' ? 25 : wt.cls==='sideoff' ? 18 : wt.cls==='sideon' ? 8 : 2;
+
+  // 風速スコア（最大20点）
+  let wsScore = 0;
+  if      (wspd < 2)  wsScore = 20;
+  else if (wspd < 4)  wsScore = 17;
+  else if (wspd < 6)  wsScore = 13;
+  else if (wspd < 8)  wsScore = 8;
+  else if (wspd < 11) wsScore = 4;
+  else                wsScore = 0;
+
+  // 周期スコア（最大15点）
+  let wpScore = 0;
+  if      (wp >= 12) wpScore = 15;
+  else if (wp >= 10) wpScore = 12;
+  else if (wp >= 8)  wpScore = 8;
+  else if (wp >= 6)  wpScore = 4;
+  else               wpScore = 1;
+
+  return Math.min(100, whScore + wdScore + wsScore + wpScore);
+}
+
+function scoreColor(score) {
+  if (score >= 80) return '#00b359';
+  if (score >= 60) return '#5b8ab8';
+  if (score >= 40) return '#f5a623';
+  return '#c0392b';
+}
+
+// ── 全スポット一覧 ──
+async function renderSpotList() {
+  const el = document.getElementById('listContent');
+  el.innerHTML = '<div class="loading"><div class="spin">🌊</div><br>全スポット取得中...</div>';
+  try {
+    const results = await Promise.all(
+      SPOTS.map(async sp => {
+        try {
+          const [mRes, wRes] = await Promise.all([
+            fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${sp.lat}&longitude=${sp.lon}&current=wave_height,wave_period,wave_direction&timezone=Asia%2FTokyo`),
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${sp.lat}&longitude=${sp.lon}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=Asia%2FTokyo`)
+          ]);
+          const mc = (await mRes.json()).current;
+          const wc = (await wRes.json()).current;
+          return { sp, mc, wc, ok: true };
+        } catch(e) { return { sp, ok: false }; }
+      })
+    );
+
+    const areas = [...new Set(SPOTS.map(s => s.area))];
+    let html = '';
+    areas.forEach(area => {
+      html += `<div class="spot-area-hdr">${area}</div>`;
+      results.filter(r => r.sp.area === area).forEach(({ sp, mc, wc, ok }) => {
+        if (!ok) {
+          html += `<div class="spot-card" onclick="goSpot('${sp.id}')">
+            <div class="spot-visual"></div>
+            <div class="spot-info"><div class="spot-name">${sp.name}</div><div class="spot-jp" style="color:#c00">取得失敗</div></div>
+          </div>`;
+          return;
+        }
+        const wh   = (mc.wave_height ?? 0) * SURF_FACTOR;
+        const wp   = mc.wave_period ?? 0;
+        const wdeg = wc.wind_direction_10m ?? 0;
+        const wspd = wc.wind_speed_10m ?? 0;
+        const wt   = windType(wdeg, sp.facing);
+        const jp   = waveJP(wh);
+        const wn   = waveNum(wh);
+        const score= surfScore(wh, wp, wdeg, wspd, sp.facing);
+        const col  = scoreColor(score);
+        const arrowColor = wt.cls==='off' ? '#4aff84' : wt.cls==='sideoff' ? '#a4ff4a' : wt.cls==='sideon' ? '#ffd04a' : '#ff6b4a';
+        const isCurrent = sp.id === SPOT.id;
+
+        html += `<div class="spot-card${isCurrent?' current':''}" onclick="goSpot('${sp.id}')">
+          <div class="spot-visual">
+            <div style="transform:rotate(${wdeg}deg);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:38px solid ${arrowColor};opacity:0.9"></div>
+            <div style="position:absolute;bottom:3px;left:0;right:0;text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.95)">${wt.short.replace('\n',' ')}</div>
+          </div>
+          <div class="spot-info">
+            <div class="spot-name">${sp.name}${isCurrent ? ' <span style="font-size:9px;background:#5b8ab8;color:#fff;padding:1px 4px;border-radius:6px;vertical-align:middle">表示中</span>' : ''}</div>
+            <div class="spot-jp">${jp}　<span style="font-weight:400;color:#888">${wh.toFixed(2)}m / ${wp.toFixed(0)}s</span></div>
+            <div class="spot-wind-row">${wt.label}（${wspd.toFixed(1)}m/s）${dir(wdeg)}</div>
+          </div>
+          <div class="spot-score-wrap">
+            <div class="spot-stars">${scoreToStars(score)}</div>
+            <div class="spot-wave-score">${wn.num}<span>/50</span></div>
+          </div>
+        </div>`;
+      });
+    });
+
+    const now = new Date();
+    html = `<div style="background:#f8f9fa;padding:6px 14px;font-size:11px;color:#888;border-bottom:1px solid #e0e0e0">
+      ${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} 現在 ─ タップで詳細表示
+    </div>` + html;
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = `<div class="err">⚠️ 取得失敗<br><small>${e.message}</small></div>`;
+  }
+}
+
+function goSpot(spotId) {
+  selectSpot(spotId);
+  showTab('wave');
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.htab').forEach(el => el.classList.remove('active'));
+  document.getElementById('pane-'+tab).classList.add('active');
+  const idx = ['list','wave','tide','weather'].indexOf(tab);
+  document.querySelectorAll('.htab')[idx].classList.add('active');
+  if (tab==='list')    renderSpotList();
+  if (tab==='tide') {
+    requestAnimationFrame(() => { if(DATA) drawTideChart(new Date()); });
+    if(DATA) renderForecast();
+  }
+  if (tab==='weather') renderWeather();
+}
+
+loadAll();
+renderSpotList();
+</script>
+</body>
+</html>
