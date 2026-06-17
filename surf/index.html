@@ -550,12 +550,31 @@ async function loadAll() {
 function renderWave() {
   const mc = DATA.marine.current;
   const wc = DATA.weather.current;
-  const wh   = effectiveFace(mc, SPOT.facing);            // うねり実効フェイス
-  const swH  = mc.swell_wave_height ?? null;
-  const swP  = mc.swell_wave_period ?? null;
-  const swD  = mc.swell_wave_direction ?? null;
-  const wwH  = mc.wind_wave_height ?? null;
-  const wp   = swP ?? mc.wave_period ?? 0;
+
+  // ── 「今の波」はNOWPHAS実測優先・予報モデルはフォールバック ──
+  const obs0 = OBS?.stations?.find(s => s.code === '222'); // 鹿島港（千葉北の実測）
+  const useObs = !!obs0;
+
+  let wh, wp, swH, swP, swD, swDirStr, wwH, obsLabel;
+  if (useObs) {
+    wh       = obs0.hs * SURF_FACTOR;                          // 実測Hs → フェイス換算（較正不要）
+    wp       = obs0.period;
+    swH      = obs0.swell_cm != null ? obs0.swell_cm / 100 : null;
+    swP      = obs0.period;                                    // NOWPHASは全波周期で代用
+    swDirStr = obs0.swell_dir ?? null;                         // "NE"など方位文字列
+    swD      = null;
+    wwH      = obs0.windwave_cm != null ? obs0.windwave_cm / 100 : null;
+    obsLabel = `📡 実測（鹿島港 ${OBS.obs_time ?? ''}・20分毎更新）`;
+  } else {
+    wh       = effectiveFace(mc, SPOT.facing);
+    swH      = mc.swell_wave_height ?? null;
+    swP      = mc.swell_wave_period ?? null;
+    swD      = mc.swell_wave_direction ?? null;
+    swDirStr = null;
+    wwH      = mc.wind_wave_height ?? null;
+    wp       = swP ?? mc.wave_period ?? 0;
+    obsLabel = '⚠️ 予報モデル（実測データ取得失敗）';
+  }
   const sst  = mc.sea_surface_temperature ?? null;
   const wspd = wc.wind_speed_10m ?? 0;
   const wdeg = wc.wind_direction_10m ?? 0;
@@ -630,8 +649,8 @@ function renderWave() {
       <div class="dc">
         <div class="dc-icon">🌊</div>
         <div>
-          <span class="dc-label">波高/周期</span>
-          <span class="dc-val">${wh.toFixed(2)}m / ${wp.toFixed(0)}s</span>
+          <span class="dc-label">${useObs ? '実測波高/周期' : '波高/周期'}</span>
+          <span class="dc-val">${useObs ? obs0.hs.toFixed(2) : wh.toFixed(2)}m / ${wp.toFixed(0)}s</span>
         </div>
       </div>
     </div>
@@ -641,7 +660,8 @@ function renderWave() {
       <div class="cond-title">コンディション
         ${agree ? `<span style="float:right;font-size:12px;font-weight:700;color:${agree.color}">予報信頼度 ${agree.mark}</span>` : ''}
       </div>
-      ${swH !== null ? `<div class="cond-row"><span class="cond-key">うねり</span><span class="cond-val"><b>${swH.toFixed(1)}m / ${(swP??0).toFixed(0)}秒 / ${swD!==null?dir(swD):'—'}から</b></span></div>` : ''}
+      <div style="font-size:11px;color:${useObs?'#2a7bd6':'#f5a623'};font-weight:700;margin-bottom:6px">${obsLabel}</div>
+      ${swH !== null ? `<div class="cond-row"><span class="cond-key">うねり</span><span class="cond-val"><b>${swH.toFixed(1)}m / ${(swP??0).toFixed(0)}秒${swDirStr ? ' / '+swDirStr+'から' : swD!==null ? ' / '+dir(swD)+'から' : ''}</b></span></div>` : ''}
       ${wwH !== null ? `<div class="cond-row"><span class="cond-key">風　波</span><span class="cond-val">${wwH.toFixed(1)}m（風で立つ波・面を乱す成分）</span></div>` : ''}
       <div class="cond-row"><span class="cond-key">波　面</span><span class="cond-val">${cond.face}</span></div>
       <div class="cond-row"><span class="cond-key">波　数</span><span class="cond-val">${cond.count}</span></div>
@@ -1472,6 +1492,7 @@ function showTab(tab) {
   if (tab==='weather') renderWeather();
 }
 
+// v2.8（2026/6/18）「今の波」をNOWPHAS実測値優先に変更（予報→実測切替・フォールバック付き）
 // v2.5（2026/6/12）うねり分離・3モデル信頼度・NOWPHAS実測・気象庁潮汐・潮の癖スコア・4日間統合グラフ
 const APP_VER = '2.7';
 (async () => {
