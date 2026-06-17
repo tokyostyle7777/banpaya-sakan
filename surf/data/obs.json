@@ -1,31 +1,31 @@
 {
-  "updated": "2026-06-17 19:30",
-  "obs_time": "06/17 19:00",
+  "updated": "2026-06-18 05:14",
+  "obs_time": "06/18 04:40",
   "source": "NOWPHAS（国土交通省港湾局）",
   "stations": [
     {
       "code": "222",
       "name": "鹿島港",
       "role": "千葉北の実測",
-      "hs": 1.47,
-      "period": 9.8,
+      "hs": 1.09,
+      "period": 8.8,
       "dir": "ENE",
-      "swell_cm": 132,
-      "swell_dir": "ENE",
-      "windwave_cm": 70,
+      "swell_cm": 97,
+      "swell_dir": "NE",
+      "windwave_cm": 63,
       "windwave_dir": "ENE"
     },
     {
       "code": "504",
       "name": "下田港",
       "role": "南うねり先行指標",
-      "hs": 0.91,
-      "period": 7.5,
-      "dir": "ESE",
-      "swell_cm": 72,
+      "hs": 0.84,
+      "period": 6.5,
+      "dir": "SSW",
+      "swell_cm": 41,
       "swell_dir": "SE",
-      "windwave_cm": 68,
-      "windwave_dir": "ESE"
+      "windwave_cm": 79,
+      "windwave_dir": "SSW"
     }
   ]
 }
