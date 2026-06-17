@@ -200,41 +200,44 @@ canvas#tideChart{display:block}
 const SURF_FACTOR = 0.70;
 
 // ── スポット一覧（A: スポット切替 / B: 地形メモ） ──
+// obs: 使用するNOWPHAS観測点コード（スポットの向きに最も近い実測点）
+//   '219'=勝浦沖(ESE・南房総向き) / '222'=鹿島港(ENE・千葉北向き)
+//   '217'=第二海堡(内房) / '504'=下田港(南うねり先行)
 const SPOTS = [
   // 千葉南
-  { id:'shirasuna',  name:'和田・白渚',     lat:35.063, lon:140.018, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', note:'ホームポイント。南向きでオフショア◎。広くて入りやすく波数も多い' },
-  { id:'wada_js',    name:'和田・J\'s前',   lat:35.058, lon:140.022, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', tide_pref:'low', note:'地元のホットスポット。干潮〜中間が掘れやすい' },
-  { id:'wada_hakaso',name:'和田・墓下',     lat:35.055, lon:140.025, facing:180, area:'千葉南', type:'砂浜',    level:'初〜上', tide_pref:'low', note:'和田エリア北側。干潮時に掘れやすく力強いブレイク' },
-  { id:'ohara',      name:'大原駐車場前',   lat:35.270, lon:140.390, facing:100, area:'千葉南', type:'砂浜',    level:'初〜中', note:'いすみ市。スタンダードなビーチブレイク。駐車場直前' },
-  { id:'hanago',     name:'花籠',           lat:35.233, lon:140.362, facing:110, area:'千葉南', type:'砂浜',    level:'初〜中', note:'いすみ市。うねりに敏感でコシ前後から入りやすい' },
-  { id:'bihara',     name:'部原・メイン',   lat:35.117, lon:140.272, facing:135, area:'千葉南', type:'砂浜',    level:'初〜上', note:'南系うねりで反応◎。千葉南の代表的ポイント' },
-  { id:'katsuura',   name:'勝浦',           lat:35.150, lon:140.300, facing:150, area:'千葉南', type:'砂浜',    level:'初〜中', note:'湾内のため風の影響を受けにくい。初心者も入りやすい' },
-  { id:'chitose',    name:'千歳',           lat:35.220, lon:140.443, facing:100, area:'千葉南', type:'砂浜/岩礁', level:'中〜上', note:'リーフあり・要注意。沖でいい波が入ることも。上級者向き' },
-  { id:'kamogawa',       name:'鴨川・マルキ',       lat:35.118, lon:140.100, facing:160, area:'千葉南', type:'砂浜',    level:'初〜中', note:'鴨川の定番ポイント。うねりに敏感。近くに鴨川シーサイドカメラ' },
-  { id:'matsuzakigawa',  name:'待崎川河口',         lat:35.127, lon:140.092, facing:135, area:'千葉南', type:'砂浜/河口', level:'初〜中', note:'横渚エリア。待崎川と海の合流点。南東うねりで反応。波のスケッチYouTubeライブカメラあり' },
-  { id:'seaside_kamogawa', name:'シーサイド（前原）', lat:35.106, lon:140.099, facing:155, area:'千葉南', type:'砂浜',    level:'初〜中', note:'ノンキーサーフ目の前。前原海水浴場エリア。鴨川を代表するポイントのひとつ。YouTubeライブカメラあり' },
-  { id:'malibu',     name:'マリブポイント', lat:35.147, lon:140.261, facing:155, area:'千葉南', type:'🪨リーフ', level:'中〜上', note:'勝浦市串浜。台風・強い南うねりでブレイク。WCT会場実績あり。リーフにつき足元注意' },
+  { id:'shirasuna',  name:'和田・白渚',     lat:35.063, lon:140.018, facing:180, obs:'219', area:'千葉南', type:'砂浜',    level:'初〜上', note:'ホームポイント。南向きでオフショア◎。広くて入りやすく波数も多い' },
+  { id:'wada_js',    name:'和田・J\'s前',   lat:35.058, lon:140.022, facing:180, obs:'219', area:'千葉南', type:'砂浜',    level:'初〜上', tide_pref:'low', note:'地元のホットスポット。干潮〜中間が掘れやすい' },
+  { id:'wada_hakaso',name:'和田・墓下',     lat:35.055, lon:140.025, facing:180, obs:'219', area:'千葉南', type:'砂浜',    level:'初〜上', tide_pref:'low', note:'和田エリア北側。干潮時に掘れやすく力強いブレイク' },
+  { id:'ohara',      name:'大原駐車場前',   lat:35.270, lon:140.390, facing:100, obs:'222', area:'千葉南', type:'砂浜',    level:'初〜中', note:'いすみ市。スタンダードなビーチブレイク。駐車場直前' },
+  { id:'hanago',     name:'花籠',           lat:35.233, lon:140.362, facing:110, obs:'222', area:'千葉南', type:'砂浜',    level:'初〜中', note:'いすみ市。うねりに敏感でコシ前後から入りやすい' },
+  { id:'bihara',     name:'部原・メイン',   lat:35.117, lon:140.272, facing:135, obs:'219', area:'千葉南', type:'砂浜',    level:'初〜上', note:'南系うねりで反応◎。千葉南の代表的ポイント' },
+  { id:'katsuura',   name:'勝浦',           lat:35.150, lon:140.300, facing:150, obs:'219', area:'千葉南', type:'砂浜',    level:'初〜中', note:'湾内のため風の影響を受けにくい。初心者も入りやすい' },
+  { id:'chitose',    name:'千歳',           lat:35.220, lon:140.443, facing:100, obs:'222', area:'千葉南', type:'砂浜/岩礁', level:'中〜上', note:'リーフあり・要注意。沖でいい波が入ることも。上級者向き' },
+  { id:'kamogawa',       name:'鴨川・マルキ',       lat:35.118, lon:140.100, facing:160, obs:'219', area:'千葉南', type:'砂浜',    level:'初〜中', note:'鴨川の定番ポイント。うねりに敏感。近くに鴨川シーサイドカメラ' },
+  { id:'matsuzakigawa',  name:'待崎川河口',         lat:35.127, lon:140.092, facing:135, obs:'219', area:'千葉南', type:'砂浜/河口', level:'初〜中', note:'横渚エリア。待崎川と海の合流点。南東うねりで反応。波のスケッチYouTubeライブカメラあり' },
+  { id:'seaside_kamogawa', name:'シーサイド（前原）', lat:35.106, lon:140.099, facing:155, obs:'219', area:'千葉南', type:'砂浜',    level:'初〜中', note:'ノンキーサーフ目の前。前原海水浴場エリア。鴨川を代表するポイントのひとつ。YouTubeライブカメラあり' },
+  { id:'malibu',     name:'マリブポイント', lat:35.147, lon:140.261, facing:155, obs:'219', area:'千葉南', type:'🪨リーフ', level:'中〜上', note:'勝浦市串浜。台風・強い南うねりでブレイク。WCT会場実績あり。リーフにつき足元注意' },
   // 千葉北
-  { id:'shidashita', name:'志田下',         lat:35.375, lon:140.372, facing:90,  area:'千葉北', type:'砂浜',    level:'中〜上', note:'千葉北ナンバーワンのパワフルなビーチブレイク。カレントに注意' },
-  { id:'ichinomiya', name:'一宮',           lat:35.373, lon:140.370, facing:90,  area:'千葉北', type:'砂浜',    level:'初〜上', note:'釣ヶ崎海岸・五輪会場。南〜南東うねりで◎。カメラ多数あり' },
-  { id:'sunrise',    name:'サンライズ',     lat:35.330, lon:140.330, facing:90,  area:'千葉北', type:'砂浜',    level:'初〜中', note:'一宮エリア。早朝の朝日と波が美しい' },
-  { id:'torami',     name:'東浪見',         lat:35.350, lon:140.400, facing:90,  area:'千葉北', type:'砂浜',    level:'初〜中', note:'シーサイドオーツカ前。一宮より空いていることが多い' },
+  { id:'shidashita', name:'志田下',         lat:35.375, lon:140.372, facing:90,  obs:'222', area:'千葉北', type:'砂浜',    level:'中〜上', note:'千葉北ナンバーワンのパワフルなビーチブレイク。カレントに注意' },
+  { id:'ichinomiya', name:'一宮',           lat:35.373, lon:140.370, facing:90,  obs:'222', area:'千葉北', type:'砂浜',    level:'初〜上', note:'釣ヶ崎海岸・五輪会場。南〜南東うねりで◎。カメラ多数あり' },
+  { id:'sunrise',    name:'サンライズ',     lat:35.330, lon:140.330, facing:90,  obs:'222', area:'千葉北', type:'砂浜',    level:'初〜中', note:'一宮エリア。早朝の朝日と波が美しい' },
+  { id:'torami',     name:'東浪見',         lat:35.350, lon:140.400, facing:90,  obs:'222', area:'千葉北', type:'砂浜',    level:'初〜中', note:'シーサイドオーツカ前。一宮より空いていることが多い' },
   // 南房総
-  { id:'chikura',    name:'千倉',           lat:34.983, lon:139.972, facing:225, area:'南房総', type:'砂浜',    level:'初〜中', note:'南西向き。台風・南岸低気圧後のうねりで◎' },
-  { id:'hirasuna',   name:'平砂浦',         lat:34.930, lon:139.880, facing:270, area:'南房総', type:'砂浜',    level:'初〜中', note:'西向きの広大なビーチ。夏場は南西風でオフショアになりやすい' },
-  { id:'minamiboso', name:'南房総（浦賀水道）', lat:34.970, lon:139.890, facing:330, area:'南房総', type:'砂浜', level:'初〜中', note:'東京湾口。北西風でオフショア。冬場の南うねり狙い' },
-  { id:'tomoe',      name:'巴ポイント',     lat:34.898, lon:139.863, facing:240, area:'南房総', type:'🪨リーフ', level:'上級',  note:'館山市富崎。強い南〜南西うねり限定のリーフブレイク。ロングライド可。上級者のみ入水' },
+  { id:'chikura',    name:'千倉',           lat:34.983, lon:139.972, facing:225, obs:'504', area:'南房総', type:'砂浜',    level:'初〜中', note:'南西向き。台風・南岸低気圧後のうねりで◎' },
+  { id:'hirasuna',   name:'平砂浦',         lat:34.930, lon:139.880, facing:270, obs:'504', area:'南房総', type:'砂浜',    level:'初〜中', note:'西向きの広大なビーチ。夏場は南西風でオフショアになりやすい' },
+  { id:'minamiboso', name:'南房総（浦賀水道）', lat:34.970, lon:139.890, facing:330, obs:'217', area:'南房総', type:'砂浜', level:'初〜中', note:'東京湾口。北西風でオフショア。冬場の南うねり狙い' },
+  { id:'tomoe',      name:'巴ポイント',     lat:34.898, lon:139.863, facing:240, obs:'504', area:'南房総', type:'🪨リーフ', level:'上級',  note:'館山市富崎。強い南〜南西うねり限定のリーフブレイク。ロングライド可。上級者のみ入水' },
   // 内房（東京湾）
-  { id:'shimoshu',   name:'下洲',           lat:35.336, lon:139.814, facing:310, area:'内房', type:'砂浜',    level:'初〜中', note:'富津市下洲海岸。東京湾内。広大な砂浜。北西風でオフショア。波は穏やか・台風余波時に期待' },
-  { id:'shinobe',    name:'篠部',           lat:35.296, lon:139.834, facing:310, area:'内房', type:'砂浜',    level:'初〜中', note:'富津市。富津岬北側。東京湾内。ヴィレッジ富津海岸近く。北西風でオフショア' },
-  { id:'isonezaki',  name:'磯根崎',         lat:35.306, lon:139.808, facing:270, area:'内房', type:'岩礁',    level:'中〜上', note:'富津市・富津岬先端。景勝地。岩礁で波が立ちやすい。東京湾内だが強風時に期待' },
-  { id:'kazusa',     name:'上総湊',         lat:35.224, lon:139.849, facing:290, area:'内房', type:'砂浜',    level:'初〜中', note:'富津市。上総湊港海浜公園。穏やかな東京湾。波は期待薄だが景色は抜群' },
-  { id:'takeoka',    name:'竹岡',           lat:35.213, lon:139.849, facing:285, area:'内房', type:'砂浜',    level:'初〜中', note:'富津市竹岡。東京湾内の穏やかなポイント。VISTA BLUEレンタルスタジオ近く' },
-  { id:'hota',       name:'保田',           lat:35.107, lon:139.832, facing:270, area:'内房', type:'砂浜',    level:'初〜中', note:'鋸南町保田。東京湾内。鋸山の麓。波は小さめ。北〜北西風でオフショア' },
-  { id:'namugaya',   name:'南無谷',         lat:35.022, lon:139.843, facing:265, area:'内房', type:'砂浜',    level:'初〜中', note:'富浦町南無谷。東京湾内・南寄り。穏やかな環境。台風余波時にのみ期待' },
+  { id:'shimoshu',   name:'下洲',           lat:35.336, lon:139.814, facing:310, obs:'217', area:'内房', type:'砂浜',    level:'初〜中', note:'富津市下洲海岸。東京湾内。広大な砂浜。北西風でオフショア。波は穏やか・台風余波時に期待' },
+  { id:'shinobe',    name:'篠部',           lat:35.296, lon:139.834, facing:310, obs:'217', area:'内房', type:'砂浜',    level:'初〜中', note:'富津市。富津岬北側。東京湾内。ヴィレッジ富津海岸近く。北西風でオフショア' },
+  { id:'isonezaki',  name:'磯根崎',         lat:35.306, lon:139.808, facing:270, obs:'217', area:'内房', type:'岩礁',    level:'中〜上', note:'富津市・富津岬先端。景勝地。岩礁で波が立ちやすい。東京湾内だが強風時に期待' },
+  { id:'kazusa',     name:'上総湊',         lat:35.224, lon:139.849, facing:290, obs:'217', area:'内房', type:'砂浜',    level:'初〜中', note:'富津市。上総湊港海浜公園。穏やかな東京湾。波は期待薄だが景色は抜群' },
+  { id:'takeoka',    name:'竹岡',           lat:35.213, lon:139.849, facing:285, obs:'217', area:'内房', type:'砂浜',    level:'初〜中', note:'富津市竹岡。東京湾内の穏やかなポイント。VISTA BLUEレンタルスタジオ近く' },
+  { id:'hota',       name:'保田',           lat:35.107, lon:139.832, facing:270, obs:'217', area:'内房', type:'砂浜',    level:'初〜中', note:'鋸南町保田。東京湾内。鋸山の麓。波は小さめ。北〜北西風でオフショア' },
+  { id:'namugaya',   name:'南無谷',         lat:35.022, lon:139.843, facing:265, obs:'217', area:'内房', type:'砂浜',    level:'初〜中', note:'富浦町南無谷。東京湾内・南寄り。穏やかな環境。台風余波時にのみ期待' },
   // 湘南
-  { id:'kamataka',   name:'鎌高前',         lat:35.327, lon:139.554, facing:180, area:'湘南',   type:'砂浜',    level:'初〜上', note:'鎌倉高校前の有名ポイント。富士山が見える。混雑注意' },
-  { id:'shichirigahama', name:'七里ヶ浜正面', lat:35.318, lon:139.530, facing:180, area:'湘南', type:'砂浜',    level:'中〜上', note:'湘南の定番ポイント。混雑しやすいが波は本物' },
+  { id:'kamataka',   name:'鎌高前',         lat:35.327, lon:139.554, facing:180, obs:'219', area:'湘南',   type:'砂浜',    level:'初〜上', note:'鎌倉高校前の有名ポイント。富士山が見える。混雑注意' },
+  { id:'shichirigahama', name:'七里ヶ浜正面', lat:35.318, lon:139.530, facing:180, obs:'219', area:'湘南', type:'砂浜',    level:'中〜上', note:'湘南の定番ポイント。混雑しやすいが波は本物' },
 ];
 
 let SPOT = SPOTS.find(s => s.id === 'shirasuna');
@@ -552,7 +555,10 @@ function renderWave() {
   const wc = DATA.weather.current;
 
   // ── 「今の波」はNOWPHAS実測優先・予報モデルはフォールバック ──
-  const obs0 = OBS?.stations?.find(s => s.code === '222'); // 鹿島港（千葉北の実測）
+  // スポットのobs指定 → 優先観測点 → フォールバック順で探す
+  const obsPriority = [SPOT.obs, '219', '222', '504'].filter(Boolean);
+  const obs0 = obsPriority.reduce((found, code) =>
+    found || OBS?.stations?.find(s => s.code === code), null);
   const useObs = !!obs0;
 
   let wh, wp, swH, swP, swD, swDirStr, wwH, obsLabel;
@@ -564,7 +570,7 @@ function renderWave() {
     swDirStr = obs0.swell_dir ?? null;                         // "NE"など方位文字列
     swD      = null;
     wwH      = obs0.windwave_cm != null ? obs0.windwave_cm / 100 : null;
-    obsLabel = `📡 実測（鹿島港 ${OBS.obs_time ?? ''}・20分毎更新）`;
+    obsLabel = `📡 実測（${obs0.name} ${OBS.obs_time ?? ''}・20分毎更新）`;
   } else {
     wh       = effectiveFace(mc, SPOT.facing);
     swH      = mc.swell_wave_height ?? null;
@@ -1492,6 +1498,7 @@ function showTab(tab) {
   if (tab==='weather') renderWeather();
 }
 
+// v2.9（2026/6/18）スポットごとに最近傍観測点を切り替え（和田→勝浦沖219・千葉北→鹿島222・内房→217）
 // v2.8（2026/6/18）「今の波」をNOWPHAS実測値優先に変更（予報→実測切替・フォールバック付き）
 // v2.5（2026/6/12）うねり分離・3モデル信頼度・NOWPHAS実測・気象庁潮汐・潮の癖スコア・4日間統合グラフ
 const APP_VER = '2.7';
