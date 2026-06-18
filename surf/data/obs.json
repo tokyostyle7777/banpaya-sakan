@@ -1,30 +1,30 @@
 {
-  "updated": "2026-06-19 05:25",
-  "obs_time": "06/19 05:00",
+  "updated": "2026-06-19 05:55",
+  "obs_time": "06/19 05:20",
   "source": "NOWPHAS（国土交通省港湾局）",
   "stations": [
     {
       "code": "219",
       "name": "勝浦沖",
       "role": "南房総の実測（最近傍・ESEうねり）",
-      "hs": 1.3,
-      "period": 7.8,
+      "hs": 1.22,
+      "period": 7.9,
       "dir": "E",
-      "swell_cm": 100,
+      "swell_cm": 96,
       "swell_dir": "ESE",
-      "windwave_cm": 95,
+      "windwave_cm": 87,
       "windwave_dir": "ESE"
     },
     {
       "code": "222",
       "name": "鹿島港",
       "role": "千葉北の実測",
-      "hs": 1.04,
+      "hs": 1.03,
       "period": 8.1,
-      "dir": "NE",
-      "swell_cm": 82,
+      "dir": "ENE",
+      "swell_cm": 84,
       "swell_dir": "ENE",
-      "windwave_cm": 74,
+      "windwave_cm": 72,
       "windwave_dir": "ENE"
     },
     {
@@ -33,23 +33,23 @@
       "role": "外洋実測（ESE方向）",
       "hs": 1.3,
       "period": 7.6,
-      "dir": "SE",
-      "swell_cm": 80,
-      "swell_dir": "SSE",
-      "windwave_cm": 104,
+      "dir": "ESE",
+      "swell_cm": 86,
+      "swell_dir": "SE",
+      "windwave_cm": 105,
       "windwave_dir": "SE"
     },
     {
       "code": "504",
       "name": "下田港",
       "role": "南うねり先行指標",
-      "hs": 0.77,
+      "hs": 0.76,
       "period": 6.8,
-      "dir": "SSE",
-      "swell_cm": 37,
-      "swell_dir": "SSE",
-      "windwave_cm": 73,
-      "windwave_dir": "SSE"
+      "dir": "SSW",
+      "swell_cm": 42,
+      "swell_dir": "S",
+      "windwave_cm": 69,
+      "windwave_dir": "S"
     }
   ]
 }
