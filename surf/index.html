@@ -133,8 +133,9 @@ canvas#tideChart{display:block}
 .spot-jp{font-size:21px;color:#274b6e;font-weight:900;margin-top:2px}
 .spot-jp .spot-jp-sub{font-size:12px;color:#888;font-weight:500;margin-left:5px}
 .spot-wind-row{font-size:12px;color:#556;margin-top:3px;font-weight:600}
-.spot-score-wrap{flex-shrink:0;text-align:right;min-width:60px}
-.spot-stars{font-size:15px;line-height:1.3;letter-spacing:1px}
+.spot-score-wrap{flex-shrink:0;text-align:right;min-width:64px}
+.spot-bcm-num{font-size:24px;font-weight:900;line-height:1;letter-spacing:-0.5px}
+.spot-stars{font-size:11px;line-height:1.3;letter-spacing:1px;margin-top:4px;opacity:0.7}
 .spot-wh-small{font-size:11px;color:#0e9c93;font-weight:600;margin-top:2px}
 
 /* ボトムナビ */
@@ -150,15 +151,15 @@ canvas#tideChart{display:block}
     <button class="hdr-refresh" onclick="loadAll()" title="更新">↻</button>
   </div>
   <div class="hdr-tabs">
-    <div class="htab active" onclick="showTab('list')">一覧</div>
+    <div class="htab" onclick="showTab('list')">一覧</div>
     <div class="htab" onclick="showTab('wave')">波情報</div>
     <div class="htab" onclick="showTab('tide')">タイド</div>
-    <div class="htab" onclick="showTab('weather')">気象</div>
+    <div class="htab active" onclick="showTab('weather')">気象</div>
   </div>
 </div>
 
 <!-- 一覧タブ -->
-<div class="tab-pane active" id="pane-list">
+<div class="tab-pane" id="pane-list">
   <div id="listContent"><div class="loading"><div class="spin">🌊</div><br>全スポット取得中...</div></div>
 </div>
 
@@ -178,7 +179,7 @@ canvas#tideChart{display:block}
 </div>
 
 <!-- 気象タブ -->
-<div class="tab-pane" id="pane-weather">
+<div class="tab-pane active" id="pane-weather">
   <div id="weatherContent"><div class="loading"><div class="spin">🌀</div><br>気象データ取得中...</div></div>
 </div>
 
@@ -320,16 +321,16 @@ function waveJP(h) {
 }
 
 function waveNum(h) {
-  // BCM▽スケール近似
-  if (h < 0.3) return {num:'×5', isX:true};
-  if (h < 0.5) return {num:'×10', isX:true};
-  if (h < 0.8) return {num:'10', isX:false};
-  if (h < 1.1) return {num:'15', isX:false};
-  if (h < 1.4) return {num:'20', isX:false};
-  if (h < 1.7) return {num:'25', isX:false};
-  if (h < 2.0) return {num:'30', isX:false};
-  if (h < 2.5) return {num:'35', isX:false};
-  return {num:'40+', isX:false};
+  // BCM風スケール（×＝ほぼ無し／▽＝小〜並／△＝良い〜大きい）
+  if (h < 0.3) return {num:'×5',  isX:true,  color:'#9aa5ab'};
+  if (h < 0.5) return {num:'×10', isX:true,  color:'#9aa5ab'};
+  if (h < 0.8) return {num:'▽15', isX:false, color:'#0e9c93'};
+  if (h < 1.1) return {num:'▽20', isX:false, color:'#0e9c93'};
+  if (h < 1.4) return {num:'△25', isX:false, color:'#2e9e4a'};
+  if (h < 1.7) return {num:'△30', isX:false, color:'#2e9e4a'};
+  if (h < 2.0) return {num:'△35', isX:false, color:'#e08a17'};
+  if (h < 2.5) return {num:'△40', isX:false, color:'#e08a17'};
+  return {num:'△45+', isX:false, color:'#c0392b'};
 }
 
 function conditionText(wh, wp, wt) {
@@ -1267,7 +1268,20 @@ async function renderWeather() {
            <div class="err">データなし</div>`;
     };
 
+    const now2 = new Date();
+    const wDays = ['日','月','火','水','木','金','土'];
+    const noTyphoon = !tcData || tcData.length === 0;
+
     el.innerHTML = `
+      <!-- ヒーロー -->
+      <div style="background:linear-gradient(135deg,#0a2233 0%,#123a4d 45%,#0e9c93 100%);padding:26px 20px 22px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.06)"></div>
+        <div style="position:absolute;bottom:-40px;left:-20px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.05)"></div>
+        <div style="position:relative;color:rgba(255,255,255,0.75);font-size:12px;font-weight:600;letter-spacing:1px">${now2.getMonth()+1}月${now2.getDate()}日（${wDays[now2.getDay()]}）</div>
+        <div style="position:relative;color:#fff;font-size:23px;font-weight:900;letter-spacing:0.5px;margin-top:4px">🌊 気象・波浪コンディション</div>
+        <div style="position:relative;color:rgba(255,255,255,0.8);font-size:12px;margin-top:6px;line-height:1.6">天気図・台風・波浪／風マップをまとめて確認${noTyphoon ? '　✅ 現在 台風なし' : '　⚠️ 台風・熱帯低気圧 発生中'}</div>
+      </div>
+
       <!-- このアプリのデータ提供元 -->
       <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
         <div style="font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:8px">🔗 このアプリのデータ提供元</div>
@@ -1507,6 +1521,7 @@ async function renderSpotList() {
         const wspd = wc.wind_speed_10m ?? 0;
         const wt   = windType(wdeg, sp.facing);
         const jp   = bcmSize(wh);
+        const wn   = waveNum(wh);
         const tDay = tideDay(sp.area);
         const score= surfScore(wh, wp, wdeg, wspd, sp.facing, tDay ? tidePrefBonus(sp, tDay) : 0);
         const col  = scoreColor(score);
@@ -1524,6 +1539,7 @@ async function renderSpotList() {
             <div class="spot-wind-row">${wt.label}｜${wspd.toFixed(1)}m/s ${dir(wdeg)}</div>
           </div>
           <div class="spot-score-wrap">
+            <div class="spot-bcm-num" style="color:${wn.color}">${wn.num}</div>
             <div class="spot-stars">${scoreToStars(score)}</div>
           </div>
         </div>`;
@@ -1579,7 +1595,7 @@ const APP_VER = '3.0';
   } catch(e) {}
   await loadStatic();
   loadAll();
-  renderSpotList();
+  renderWeather();
 })();
 </script>
 </body>
