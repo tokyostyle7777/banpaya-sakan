@@ -13,16 +13,16 @@
 <title>波情報 | 和田・白渚</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#dfe6ee;color:#222;font-family:-apple-system,'Hiragino Sans',sans-serif;max-width:480px;margin:0 auto;min-height:100vh}
+body{background:#f0ece1;color:#222;font-family:-apple-system,'Hiragino Sans',sans-serif;max-width:480px;margin:0 auto;min-height:100vh}
 
 /* ヘッダー */
-.hdr{background:linear-gradient(180deg,#6589bd,#5b8ab8);padding:10px 10px 8px;color:#fff}
+.hdr{background:linear-gradient(180deg,#123a4d,#0e9c93);padding:10px 10px 8px;color:#fff}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .hdr-title{font-size:18px;font-weight:700;letter-spacing:1px}
 .hdr-refresh{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0 4px}
 .hdr-tabs{display:flex;gap:5px}
 .htab{flex:1;text-align:center;padding:9px 4px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.85);cursor:pointer;border-radius:9px;background:rgba(255,255,255,0.16)}
-.htab.active{background:#fff;color:#3d6ca5;font-weight:800}
+.htab.active{background:#fff;color:#123a4d;font-weight:800}
 
 /* タブコンテンツ */
 .tab-body{background:transparent;padding-bottom:14px}
@@ -53,42 +53,42 @@ body{background:#dfe6ee;color:#222;font-family:-apple-system,'Hiragino Sans',san
 .dc:last-child{border-right:none}
 .dc-icon{font-size:22px}
 .dc-label{font-size:10px;color:#888;display:block}
-.dc-val{font-size:15px;font-weight:700;color:#5b8ab8}
+.dc-val{font-size:15px;font-weight:700;color:#0e9c93}
 
 /* コンディション */
 .cond-section{padding:14px;background:#fff;border-radius:14px;margin:10px 8px 0;box-shadow:0 1px 4px rgba(30,60,100,0.10)}
-.cond-title{font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px}
+.cond-title{font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:8px}
 .cond-row{display:flex;padding:4px 0;border-bottom:1px dotted #eee;font-size:13px}
 .cond-row:last-child{border-bottom:none}
-.cond-key{color:#5b8ab8;font-weight:600;width:50px;flex-shrink:0}
+.cond-key{color:#0e9c93;font-weight:600;width:50px;flex-shrink:0}
 .cond-val{color:#444;flex:1}
 
 /* カメラリンク */
 .cam-section{padding:14px;background:#fff;border-radius:14px;margin:10px 8px 0;box-shadow:0 1px 4px rgba(30,60,100,0.10)}
-.cam-title{font-size:14px;font-weight:700;color:#5b8ab8;margin-bottom:8px}
+.cam-title{font-size:14px;font-weight:700;color:#0e9c93;margin-bottom:8px}
 .cam-links{display:flex;flex-direction:column;gap:6px}
-.cam-link{display:flex;align-items:center;gap:8px;background:#f0f6ff;border-radius:8px;padding:8px 12px;text-decoration:none;color:#333;font-size:13px}
+.cam-link{display:flex;align-items:center;gap:8px;background:#e8f6f4;border-radius:8px;padding:8px 12px;text-decoration:none;color:#333;font-size:13px}
 .cam-link-icon{font-size:18px}
 
 /* ===== タイドタブ ===== */
 .tide-header{background:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-radius:14px 14px 0 0;margin:10px 8px 0}
-.tide-date{font-size:15px;font-weight:700;color:#5b8ab8}
-.tide-type-badge{background:#5b8ab8;color:#fff;font-size:12px;padding:3px 8px;border-radius:12px}
+.tide-date{font-size:15px;font-weight:700;color:#0e9c93}
+.tide-type-badge{background:#0e9c93;color:#fff;font-size:12px;padding:3px 8px;border-radius:12px}
 .tide-sun{font-size:12px;color:#888;display:flex;gap:12px}
-.tide-graph-wrap{background:#eef4fb;padding:12px 10px;position:relative;margin:0 8px}
+.tide-graph-wrap{background:#e8f6f4;padding:12px 10px;position:relative;margin:0 8px}
 canvas#tideChart{display:block}
 .tide-extremes{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:12px;background:#fff;margin:0 8px}
-.te-item{text-align:center;background:#f0f6ff;border-radius:8px;padding:6px 4px}
+.te-item{text-align:center;background:#e8f6f4;border-radius:8px;padding:6px 4px}
 .te-type{font-size:10px;color:#888;margin-bottom:2px}
 .te-time{font-size:14px;font-weight:700;color:#333}
-.te-cm{font-size:12px;color:#5b8ab8;font-weight:600}
+.te-cm{font-size:12px;color:#0e9c93;font-weight:600}
 
 /* ===== 予報タブ ===== */
-.fc-toggle{display:flex;margin:12px 8px 0;border:2px solid #5b8ab8;border-radius:10px;overflow:hidden;background:#fff}
-.fc-toggle-btn{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#5b8ab8}
-.fc-toggle-btn.active{background:#5b8ab8;color:#fff}
-.fc-day-header{background:#fff;padding:11px 14px;font-size:14px;font-weight:800;color:#2f6db5;border-radius:14px 14px 0 0;margin:12px 8px 0;border-bottom:1px solid #e8eef6}
-.fc-table-wrap{overflow-x:auto;border-bottom:2px solid #5b8ab8}
+.fc-toggle{display:flex;margin:12px 8px 0;border:2px solid #0e9c93;border-radius:10px;overflow:hidden;background:#fff}
+.fc-toggle-btn{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#0e9c93}
+.fc-toggle-btn.active{background:#0e9c93;color:#fff}
+.fc-day-header{background:#fff;padding:11px 14px;font-size:14px;font-weight:800;color:#0b7a73;border-radius:14px 14px 0 0;margin:12px 8px 0;border-bottom:1px solid #e8eef6}
+.fc-table-wrap{overflow-x:auto;border-bottom:2px solid #0e9c93}
 .fc-table{border-collapse:collapse;min-width:100%;font-size:12px;background:#fff}
 .fc-table th{background:#dce8f4;padding:5px 8px;text-align:center;white-space:nowrap;border-right:1px solid #ccc;color:#555;font-weight:600;font-size:11px;position:sticky;left:0;z-index:1}
 .fc-table td{padding:7px 10px;text-align:center;border-right:1px solid #eee;border-bottom:1px solid #eee;white-space:nowrap}
@@ -102,27 +102,27 @@ canvas#tideChart{display:block}
 .bcm-col.now{background:#eaf3ff}
 .bcm-cell{display:flex;align-items:center;justify-content:center;border-bottom:1px solid #f5f6f8}
 .bcm-bar-area{position:relative;background:linear-gradient(180deg,#ddeafe 0%,#cfe2fb 100%)}
-.bcm-bar{position:absolute;bottom:0;left:0;right:0;background:#2f6db5}
+.bcm-bar{position:absolute;bottom:0;left:0;right:0;background:#0b7a73}
 .wt-badge{font-size:9px;font-weight:800;color:#fff;border-radius:3px;padding:2px 3px;line-height:1.2;display:inline-block}
-.fc-wh{font-weight:700;color:#5b8ab8}
+.fc-wh{font-weight:700;color:#0e9c93}
 
 /* カメラセクション */
 .cam-section{padding:12px 14px;border-bottom:1px solid #e8e8e8}
-.cam-title{font-size:14px;font-weight:700;color:#5b8ab8;margin-bottom:8px}
-.cam-area-header{font-size:13px;font-weight:700;color:#fff;background:#5b8ab8;border-radius:6px;padding:4px 10px;margin-bottom:6px}
+.cam-title{font-size:14px;font-weight:700;color:#0e9c93;margin-bottom:8px}
+.cam-area-header{font-size:13px;font-weight:700;color:#fff;background:#0e9c93;border-radius:6px;padding:4px 10px;margin-bottom:6px}
 .cam-links{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
-.cam-link{display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600}
+.cam-link{display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600}
 .cam-link-icon{font-size:20px;flex-shrink:0}
 .cam-sub{font-size:11px;color:#888;font-weight:400;display:block;margin-top:1px}
 
 /* ローディング */
-.loading{text-align:center;padding:60px 20px;color:#5b8ab8}
+.loading{text-align:center;padding:60px 20px;color:#0e9c93}
 .spin{font-size:36px;animation:spin 1.5s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 .err{background:#ffeaea;border-radius:8px;padding:12px;margin:12px;font-size:13px;color:#c00}
 
 /* ===== 一覧タブ ===== */
-.spot-area-hdr{background:transparent;padding:12px 16px 5px;font-size:13px;font-weight:800;color:#41699e;letter-spacing:1px}
+.spot-area-hdr{background:transparent;padding:12px 16px 5px;font-size:13px;font-weight:800;color:#123a4d;letter-spacing:1px}
 .spot-card{display:flex;align-items:center;padding:11px 12px;cursor:pointer;background:#fff;gap:11px;border-radius:12px;margin:0 8px 8px;box-shadow:0 1px 3px rgba(30,60,100,0.09);-webkit-tap-highlight-color:rgba(91,138,184,0.1);border-left:5px solid #ccc}
 .spot-card.current{background:#eef5ff;outline:2px solid #8fb4dd}
 .spot-visual{width:52px;height:52px;border-radius:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font-weight:900}
@@ -135,7 +135,7 @@ canvas#tideChart{display:block}
 .spot-wind-row{font-size:12px;color:#556;margin-top:3px;font-weight:600}
 .spot-score-wrap{flex-shrink:0;text-align:right;min-width:60px}
 .spot-stars{font-size:15px;line-height:1.3;letter-spacing:1px}
-.spot-wh-small{font-size:11px;color:#5b8ab8;font-weight:600;margin-top:2px}
+.spot-wh-small{font-size:11px;color:#0e9c93;font-weight:600;margin-top:2px}
 
 /* ボトムナビ */
 .bnav{height:60px} /* スペーサー */
@@ -170,7 +170,7 @@ canvas#tideChart{display:block}
 <!-- タイドタブ（タイドグラフ＋時間予報 統合） -->
 <div class="tab-pane" id="pane-tide">
   <div id="tideContent"><div class="loading"><div class="spin">🌊</div><br>潮汐計算中...</div></div>
-  <div class="fc-toggle" style="margin-top:0;border-top:2px solid #5b8ab8">
+  <div class="fc-toggle" style="margin-top:0;border-top:2px solid #0e9c93">
     <div class="fc-toggle-btn active" id="btn1h" onclick="setFcInterval(1)">1時間表示</div>
     <div class="fc-toggle-btn" id="btn3h" onclick="setFcInterval(3)">3時間表示</div>
   </div>
@@ -187,7 +187,7 @@ canvas#tideChart{display:block}
 <!-- スポット選択モーダル -->
 <div id="spotMenu" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:2000" onclick="if(event.target===this)closeSpotMenu()">
   <div style="background:#fff;margin:50px auto 20px;max-width:480px;border-radius:14px;overflow:hidden;max-height:80vh;display:flex;flex-direction:column">
-    <div style="background:#5b8ab8;padding:14px 16px;color:#fff;font-size:16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+    <div style="background:#0e9c93;padding:14px 16px;color:#fff;font-size:16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
       📍 スポット選択
       <button onclick="closeSpotMenu()" style="background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1">×</button>
     </div>
@@ -250,15 +250,15 @@ function openSpotMenu() {
   const areas = [...new Set(SPOTS.map(s => s.area))];
   let html = '';
   areas.forEach(area => {
-    html += `<div style="background:#dce8f4;padding:7px 14px;font-size:12px;font-weight:700;color:#5b8ab8;letter-spacing:1px">${area}</div>`;
+    html += `<div style="background:#dce8f4;padding:7px 14px;font-size:12px;font-weight:700;color:#0e9c93;letter-spacing:1px">${area}</div>`;
     SPOTS.filter(s => s.area === area).forEach(s => {
       const active = s.id === SPOT.id;
-      html += `<div onclick="selectSpot('${s.id}')" style="padding:11px 14px;border-bottom:1px solid #f0f0f0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;${active?'background:#f0f6ff;':''}" >
+      html += `<div onclick="selectSpot('${s.id}')" style="padding:11px 14px;border-bottom:1px solid #f0f0f0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;${active?'background:#e8f6f4;':''}" >
         <div>
-          <div style="font-size:14px;font-weight:${active?'700':'600'};color:${active?'#5b8ab8':'#333'}">${s.name}</div>
+          <div style="font-size:14px;font-weight:${active?'700':'600'};color:${active?'#0e9c93':'#333'}">${s.name}</div>
           <div style="font-size:11px;color:#888;margin-top:2px">${s.type} / ${s.level}</div>
         </div>
-        ${active ? '<span style="color:#5b8ab8;font-size:18px">✓</span>' : ''}
+        ${active ? '<span style="color:#0e9c93;font-size:18px">✓</span>' : ''}
       </div>`;
     });
   });
@@ -412,7 +412,7 @@ function modelAgreement() {
   if (!n) return null;
   const avg = spreads.reduce((a,b)=>a+b,0) / n;
   if (avg < 0.18) return { mark:'◎', text:'3モデルほぼ一致・信頼度 高', color:'#00b359' };
-  if (avg < 0.40) return { mark:'○', text:'モデル間に少し差・信頼度 中', color:'#5b8ab8' };
+  if (avg < 0.40) return { mark:'○', text:'モデル間に少し差・信頼度 中', color:'#0e9c93' };
   return { mark:'△', text:'モデルの予想が割れている・参考程度', color:'#f5a623' };
 }
 
@@ -675,8 +675,8 @@ function renderWave() {
       <div class="cond-row"><span class="cond-key">風　速</span><span class="cond-val">${wspd.toFixed(1)}m/s ${wstr} ${wdir}</span></div>
       ${tSt ? `<div class="cond-row"><span class="cond-key">潮</span><span class="cond-val"><b>${tSt.label}</b>（今 ${tideNowCm(tDay)}cm・${tDay.name}基準）${tBonus > 0 ? ' <span style="color:#00b359;font-weight:700">◎このスポット向きの潮</span>' : tBonus < 0 ? ' <span style="color:#f5a623">△潮が合わない時間帯</span>' : ''}</span></div>` : ''}
       ${agree ? `<div style="margin-top:6px;font-size:11px;color:#888">🛰️ ${agree.text}（欧州ECMWF・米GFS・仏MFWAMの波予報を比較）</div>` : ''}
-      <div style="margin-top:8px;background:#f0f6ff;border-radius:6px;padding:8px 10px;font-size:12px;color:#444;line-height:1.6">
-        <span style="font-weight:700;color:#5b8ab8">📍 ${SPOT.type} / ${SPOT.level}　</span>${SPOT.note}
+      <div style="margin-top:8px;background:#e8f6f4;border-radius:6px;padding:8px 10px;font-size:12px;color:#444;line-height:1.6">
+        <span style="font-weight:700;color:#0e9c93">📍 ${SPOT.type} / ${SPOT.level}　</span>${SPOT.note}
       </div>
     </div>
 
@@ -1063,7 +1063,7 @@ function drawTideChart(now) {
   }
 
   // 潮位ライン
-  ctx.beginPath(); ctx.strokeStyle = '#5b8ab8'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.strokeStyle = '#0e9c93'; ctx.lineWidth = 2.5;
   for (let hf = 0; hf <= DAYS*24; hf += 0.25) {
     const x = xAt(hf), y = scY(cmAt(hf));
     hf === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
@@ -1078,7 +1078,7 @@ function drawTideChart(now) {
     ex.forEach(e => {
       const hf = d*24 + parseInt(e.timeStr.slice(0,2)) + parseInt(e.timeStr.slice(3,5))/60;
       const x = xAt(hf), y = scY(e.cm);
-      ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI*2); ctx.fillStyle = '#5b8ab8'; ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI*2); ctx.fillStyle = '#0e9c93'; ctx.fill();
       ctx.fillStyle = '#333'; ctx.font = 'bold 11px -apple-system,sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(`${e.cm}`, x, e.type === '満潮' ? y - 9 : y + 18);
       ctx.fillStyle = '#888'; ctx.font = '9px -apple-system,sans-serif';
@@ -1197,11 +1197,11 @@ function renderForecast() {
       <div class="bcm-cell bcm-bar-area" style="height:96px">
         <div class="bcm-bar" style="height:${barPct}%"></div>
         <div style="position:absolute;top:6px;left:0;right:0;font-size:13px;font-weight:900;color:#1a4a7a">${wh.toFixed(2)}</div>
-        <div style="position:absolute;top:24px;left:0;right:0;font-size:9px;font-weight:700;color:#2f6db5">${jpOne(wh)}</div>
+        <div style="position:absolute;top:24px;left:0;right:0;font-size:9px;font-weight:700;color:#0b7a73">${jpOne(wh)}</div>
       </div>
       <div class="bcm-cell" style="height:20px;font-size:10px;color:#555">${swp !== null ? swp.toFixed(0)+'秒' : '—'}</div>
       <div class="bcm-cell" style="height:34px;flex-direction:column">
-        <span style="display:inline-block;transform:rotate(${flowS}deg);font-size:12px;color:#2f6db5">➤</span>
+        <span style="display:inline-block;transform:rotate(${flowS}deg);font-size:12px;color:#0b7a73">➤</span>
         <span style="font-size:9px;color:#667">${dir(wdeg)}</span>
       </div>
     </div>`;
@@ -1242,47 +1242,53 @@ async function renderWeather() {
         <span style="font-weight:400;color:#555;font-size:12px">南方海上を引き続き監視中</span>
       </div>`;
     } else {
-      tcHtml = tcData.map(tc => `
-        <div style="background:#fff3e0;border-left:4px solid #f57c00;border-radius:4px;padding:10px 14px;margin-bottom:8px">
-          <div style="font-weight:700;color:#e65100;font-size:14px">🌀 台風 ${tc.number ?? tc.id ?? ''}</div>
-          <div style="font-size:12px;color:#555;margin-top:4px">${tc.name||''} ${tc.class||''}</div>
-        </div>`).join('');
+      const catLabel = { TD:'熱帯低気圧', TS:'台風', STS:'強い台風', TY:'台風', TR:'台風' };
+      tcHtml = tcData.map(tc => {
+        const num  = (tc.typhoonNumber || '').slice(-2).replace(/^0/,'');
+        const cat  = catLabel[tc.category] || tc.category || '';
+        const link = `https://www.jma.go.jp/bosai/typhoon/#area_type=japan&area_code=010000&tc_num=${tc.tropicalCyclone}`;
+        return `
+        <a href="${link}" target="_blank" style="display:block;text-decoration:none;background:#fff3e0;border-left:4px solid #f57c00;border-radius:8px;padding:10px 14px;margin-bottom:8px;cursor:pointer">
+          <div style="font-weight:700;color:#e65100;font-size:14px">🌀 ${cat}${num ? num+'号' : ''}</div>
+          <div style="font-size:12px;color:#555;margin-top:4px">発表：${tc.issue ? new Date(tc.issue).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''}　▶ タップで気象庁の詳細ページへ</div>
+        </a>`;
+      }).join('');
     }
 
     // 天気図imgヘルパー
     const mapImg = (file, label, note) => {
       const noteHtml = note ? `<div style="font-size:11px;color:#888;margin-bottom:8px">${note}</div>` : '';
       return file
-        ? `<div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:6px">${label}</div>
+        ? `<div style="font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:6px">${label}</div>
            ${noteHtml}
            <img src="${mapBase}${file}" style="width:100%;border-radius:8px;display:block"
                 onerror="this.outerHTML='<div class=\\'err\\'>画像の読み込みに失敗しました</div>'">`
-        : `<div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:6px">${label}</div>
+        : `<div style="font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:6px">${label}</div>
            <div class="err">データなし</div>`;
     };
 
     el.innerHTML = `
       <!-- このアプリのデータ提供元 -->
       <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
-        <div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px">🔗 このアプリのデータ提供元</div>
+        <div style="font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:8px">🔗 このアプリのデータ提供元</div>
         <div style="font-size:11px;color:#888;margin-bottom:8px">波高・風向・スコアの計算に使っている大元のサイトです。実際の観測・予報を直接見たい時はこちらへ</div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <a href="https://open-meteo.com/" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">🌊</span>
             <div>Open-Meteo（波・風の予報モデル）<br>
               <span style="font-size:11px;color:#888;font-weight:400">全スポットの波高・周期・風向風速のベースデータ。ECMWF等の複数モデルを使用</span>
             </div>
           </a>
           <a href="https://nowphas.mlit.go.jp/" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">📡</span>
             <div>NOWPHAS（国土交通省港湾局）<br>
               <span style="font-size:11px;color:#888;font-weight:400">実測波高データ。「今の波」表示は予報より実測を優先</span>
             </div>
           </a>
           <a href="https://www.jma.go.jp/jma/index.html" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">🎌</span>
             <div>気象庁（天気図・台風・潮汐）<br>
               <span style="font-size:11px;color:#888;font-weight:400">下の天気図画像・台風情報・タイドタブの潮汐データの出典</span>
@@ -1293,8 +1299,24 @@ async function renderWeather() {
 
       <!-- 台風情報 -->
       <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
-        <div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px">🌀 台風情報</div>
+        <div style="font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:8px">🌀 台風情報</div>
         ${tcHtml}
+      </div>
+
+      <!-- 波浪マップ（Windyライブ埋め込み） -->
+      <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
+        <div style="font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:6px">🌊 波浪マップ（ライブ）</div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px">和田・白渚沖。ドラッグ・ピンチで操作可能</div>
+        <iframe src="https://embed.windy.com/embed2.html?lat=${SPOT.lat}&lon=${SPOT.lon}&detailLat=${SPOT.lat}&detailLon=${SPOT.lon}&width=650&height=300&zoom=8&level=surface&overlay=waves&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"
+                style="width:100%;height:260px;border:none;border-radius:10px" loading="lazy"></iframe>
+      </div>
+
+      <!-- 風マップ（Windyライブ埋め込み） -->
+      <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
+        <div style="font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:6px">💨 風マップ（ライブ）</div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px">和田・白渚沖。ドラッグ・ピンチで操作可能</div>
+        <iframe src="https://embed.windy.com/embed2.html?lat=${SPOT.lat}&lon=${SPOT.lon}&detailLat=${SPOT.lat}&detailLon=${SPOT.lon}&width=650&height=300&zoom=8&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"
+                style="width:100%;height:260px;border:none;border-radius:10px" loading="lazy"></iframe>
       </div>
 
       <!-- 地上天気図（最新） -->
@@ -1314,52 +1336,52 @@ async function renderWeather() {
 
       <!-- リアルタイムデータ -->
       <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
-        <div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px">📡 リアルタイムデータ</div>
+        <div style="font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:8px">📡 リアルタイムデータ</div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <a href="https://nowphas.mlit.go.jp/pastdata" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">🌊</span>
             <div>ナウファス 実測波高（国交省）<br>
               <span style="font-size:11px;color:#888;font-weight:400">勝浦・銚子 観測点 リアルタイム</span>
             </div>
           </a>
           <a href="https://www.jma.go.jp/bosai/map.html#5/35/136/&elem=root&typhoon=all&contents=typhoon" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">🌀</span>
             <div>気象庁 台風進路予報<br>
               <span style="font-size:11px;color:#888;font-weight:400">台風発生時は進路・うねり到達を確認</span>
             </div>
           </a>
           <a href="https://www.windy.com/?waves,35.063,140.018,6" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">💨</span>
             <div>Windy 広域波浪マップ<br>
               <span style="font-size:11px;color:#888;font-weight:400">うねりの発生源・伝播方向を確認</span>
             </div>
           </a>
           <a href="https://supercweather.com/" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">🌊</span>
             <div>SCW 波浪GPVマップ（全国）<br>
               <span style="font-size:11px;color:#888;font-weight:400">気象庁・NOAA予測モデル。「波浪」メニューで波高・周期を色分け表示</span>
             </div>
           </a>
           <a href="https://www.data.jma.go.jp/waveinf/chart/awjp.html" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">🌊</span>
             <div>気象庁 沿岸波浪実況図<br>
               <span style="font-size:11px;color:#888;font-weight:400">今の波高・波向・周期マップ（航空波浪気象）</span>
             </div>
           </a>
           <a href="https://www.data.jma.go.jp/waveinf/chart/fwjp.html" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">📈</span>
             <div>気象庁 沿岸波浪予想図（24h）<br>
               <span style="font-size:11px;color:#888;font-weight:400">明日の波高・波向を先読み</span>
             </div>
           </a>
           <a href="https://www.umitenki.jp/top/pref/2/012" target="_blank"
-             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+             style="display:flex;align-items:center;gap:10px;background:#e8f6f4;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">⛵</span>
             <div>海天気.jp 千葉エリア<br>
               <span style="font-size:11px;color:#888;font-weight:400">無料の海・波予報（千葉全域）</span>
@@ -1370,21 +1392,21 @@ async function renderWeather() {
 
       <!-- 天気図の読み方（サーフィン視点） -->
       <div style="padding:12px 14px">
-        <div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px">📖 天気図の読み方（サーフィン視点）</div>
+        <div style="font-size:15px;font-weight:700;color:#0e9c93;margin-bottom:8px">📖 天気図の読み方（サーフィン視点）</div>
         <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
-          <div style="background:#f0f6ff;border-radius:8px;padding:10px 12px">
+          <div style="background:#e8f6f4;border-radius:8px;padding:10px 12px">
             <div style="font-weight:700;color:#e65100;margin-bottom:4px">🌪️ 南岸低気圧</div>
             <div style="color:#444;line-height:1.6">本州南岸を通過すると、通過後24〜36hで<b>南〜南東うねり</b>が入る。和田・白渚は<b>面打ち◎</b>。低気圧が東へ抜けるほどうねりが大きくなりやすい。</div>
           </div>
-          <div style="background:#f0f6ff;border-radius:8px;padding:10px 12px">
+          <div style="background:#e8f6f4;border-radius:8px;padding:10px 12px">
             <div style="font-weight:700;color:#1565c0;margin-bottom:4px">🌀 台風うねり</div>
             <div style="color:#444;line-height:1.6">台風が南西→東進すると先行してうねりが届く。距離1,000kmで約12〜18h後着。アジア天気図で南方の熱帯低気圧を発見したら3〜5日前行動。</div>
           </div>
-          <div style="background:#f0f6ff;border-radius:8px;padding:10px 12px">
+          <div style="background:#e8f6f4;border-radius:8px;padding:10px 12px">
             <div style="font-weight:700;color:#2e7d32;margin-bottom:4px">📏 等圧線密度</div>
             <div style="color:#444;line-height:1.6">等圧線が密集→海上風強い→波面が荒れる。太平洋高気圧の縁でできる南西〜南うねりが千葉南に有利。等圧線が広い（高気圧圏内）→クリーン。</div>
           </div>
-          <div style="background:#f0f6ff;border-radius:8px;padding:10px 12px">
+          <div style="background:#e8f6f4;border-radius:8px;padding:10px 12px">
             <div style="font-weight:700;color:#6a1b9a;margin-bottom:4px">🏔️ 高気圧の位置</div>
             <div style="color:#444;line-height:1.6">太平洋高気圧が北上→千葉南に南西風→オフショア◎。高気圧が東海上にあると北東風→千葉北（志田下◎）。朝の弱い陸風（西〜南西）を狙う。</div>
           </div>
@@ -1443,7 +1465,7 @@ function surfScore(face, swellPeriod, windDeg, wspd, facing, tideBonus = 0) {
 
 function scoreColor(score) {
   if (score >= 80) return '#00b359';
-  if (score >= 60) return '#5b8ab8';
+  if (score >= 60) return '#0e9c93';
   if (score >= 40) return '#f5a623';
   return '#c0392b';
 }
@@ -1488,7 +1510,7 @@ async function renderSpotList() {
         const tDay = tideDay(sp.area);
         const score= surfScore(wh, wp, wdeg, wspd, sp.facing, tDay ? tidePrefBonus(sp, tDay) : 0);
         const col  = scoreColor(score);
-        const arrowColor = wt.cls==='off' ? '#00b359' : wt.cls==='sideoff' ? '#5b8ab8' : wt.cls==='sideon' ? '#f5a623' : '#c0392b';
+        const arrowColor = wt.cls==='off' ? '#00b359' : wt.cls==='sideoff' ? '#0e9c93' : wt.cls==='sideon' ? '#f5a623' : '#c0392b';
         const isCurrent = sp.id === SPOT.id;
 
         html += `<div class="spot-card${isCurrent?' current':''}" style="border-left-color:${col}" onclick="goSpot('${sp.id}')">
@@ -1497,7 +1519,7 @@ async function renderSpotList() {
             <div class="wv-label">${wt.short.replace('\n',' ')}</div>
           </div>
           <div class="spot-info">
-            <div class="spot-name">${sp.name}${isCurrent ? ' <span style="font-size:9px;background:#5b8ab8;color:#fff;padding:1px 4px;border-radius:6px;vertical-align:middle">表示中</span>' : ''}</div>
+            <div class="spot-name">${sp.name}${isCurrent ? ' <span style="font-size:9px;background:#0e9c93;color:#fff;padding:1px 4px;border-radius:6px;vertical-align:middle">表示中</span>' : ''}</div>
             <div class="spot-jp">${jp}<span class="spot-jp-sub">${wh.toFixed(2)}m / ${wp.toFixed(0)}s</span></div>
             <div class="spot-wind-row">${wt.label}｜${wspd.toFixed(1)}m/s ${dir(wdeg)}</div>
           </div>
