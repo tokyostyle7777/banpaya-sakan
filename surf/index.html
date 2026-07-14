@@ -1262,6 +1262,35 @@ async function renderWeather() {
     };
 
     el.innerHTML = `
+      <!-- このアプリのデータ提供元 -->
+      <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
+        <div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px">🔗 このアプリのデータ提供元</div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px">波高・風向・スコアの計算に使っている大元のサイトです。実際の観測・予報を直接見たい時はこちらへ</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <a href="https://open-meteo.com/" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">🌊</span>
+            <div>Open-Meteo（波・風の予報モデル）<br>
+              <span style="font-size:11px;color:#888;font-weight:400">全スポットの波高・周期・風向風速のベースデータ。ECMWF等の複数モデルを使用</span>
+            </div>
+          </a>
+          <a href="https://nowphas.mlit.go.jp/" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">📡</span>
+            <div>NOWPHAS（国土交通省港湾局）<br>
+              <span style="font-size:11px;color:#888;font-weight:400">実測波高データ。「今の波」表示は予報より実測を優先</span>
+            </div>
+          </a>
+          <a href="https://www.jma.go.jp/jma/index.html" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">🎌</span>
+            <div>気象庁（天気図・台風・潮汐）<br>
+              <span style="font-size:11px;color:#888;font-weight:400">下の天気図画像・台風情報・タイドタブの潮汐データの出典</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
       <!-- 台風情報 -->
       <div style="padding:12px 14px;border-bottom:1px solid #e0e0e0">
         <div style="font-size:15px;font-weight:700;color:#5b8ab8;margin-bottom:8px">🌀 台風情報</div>
