@@ -123,17 +123,18 @@ canvas#tideChart{display:block}
 
 /* ===== 一覧タブ ===== */
 .spot-area-hdr{background:transparent;padding:12px 16px 5px;font-size:13px;font-weight:800;color:#41699e;letter-spacing:1px}
-.spot-card{display:flex;align-items:center;padding:10px 12px;cursor:pointer;background:#fff;gap:10px;border-radius:12px;margin:0 8px 8px;box-shadow:0 1px 3px rgba(30,60,100,0.09);-webkit-tap-highlight-color:rgba(91,138,184,0.1)}
+.spot-card{display:flex;align-items:center;padding:11px 12px;cursor:pointer;background:#fff;gap:11px;border-radius:12px;margin:0 8px 8px;box-shadow:0 1px 3px rgba(30,60,100,0.09);-webkit-tap-highlight-color:rgba(91,138,184,0.1);border-left:5px solid #ccc}
 .spot-card.current{background:#eef5ff;outline:2px solid #8fb4dd}
-.spot-visual{width:66px;height:62px;border-radius:8px;overflow:hidden;flex-shrink:0;background:linear-gradient(180deg,#87ceeb 0%,#5b9bd5 55%,#d4a96a 55%,#b8864a 100%);position:relative;display:flex;align-items:center;justify-content:center}
+.spot-visual{width:52px;height:52px;border-radius:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font-weight:900}
+.spot-visual .wv-arrow{font-size:22px;line-height:1}
+.spot-visual .wv-label{font-size:8px;letter-spacing:0.5px;margin-top:1px}
 .spot-info{flex:1;min-width:0}
-.spot-name{font-size:14px;font-weight:700;color:#333}
-.spot-jp{font-size:12px;color:#5b8ab8;font-weight:600;margin-top:1px}
-.spot-wind-row{font-size:11px;color:#888;margin-top:2px}
-.spot-score-wrap{flex-shrink:0;text-align:right;min-width:72px}
-.spot-stars{font-size:14px;line-height:1.3;letter-spacing:1px}
-.spot-wave-score{font-size:18px;font-weight:900;color:#5b8ab8;line-height:1;margin-top:3px}
-.spot-wave-score span{font-size:10px;color:#888;font-weight:400}
+.spot-name{font-size:13px;font-weight:700;color:#333}
+.spot-jp{font-size:21px;color:#274b6e;font-weight:900;margin-top:2px}
+.spot-jp .spot-jp-sub{font-size:12px;color:#888;font-weight:500;margin-left:5px}
+.spot-wind-row{font-size:12px;color:#556;margin-top:3px;font-weight:600}
+.spot-score-wrap{flex-shrink:0;text-align:right;min-width:60px}
+.spot-stars{font-size:15px;line-height:1.3;letter-spacing:1px}
 .spot-wh-small{font-size:11px;color:#5b8ab8;font-weight:600;margin-top:2px}
 
 /* ボトムナビ */
@@ -1307,6 +1308,13 @@ async function renderWeather() {
               <span style="font-size:11px;color:#888;font-weight:400">うねりの発生源・伝播方向を確認</span>
             </div>
           </a>
+          <a href="https://supercweather.com/" target="_blank"
+             style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
+            <span style="font-size:20px">🌊</span>
+            <div>SCW 波浪GPVマップ（全国）<br>
+              <span style="font-size:11px;color:#888;font-weight:400">気象庁・NOAA予測モデル。「波浪」メニューで波高・周期を色分け表示</span>
+            </div>
+          </a>
           <a href="https://www.data.jma.go.jp/waveinf/chart/awjp.html" target="_blank"
              style="display:flex;align-items:center;gap:10px;background:#f0f6ff;border-radius:8px;padding:9px 12px;text-decoration:none;color:#333;font-size:13px;font-weight:600">
             <span style="font-size:20px">🌊</span>
@@ -1436,9 +1444,9 @@ async function renderSpotList() {
       html += `<div class="spot-area-hdr">${area}</div>`;
       results.filter(r => r.sp.area === area).forEach(({ sp, mc, wc, ok }) => {
         if (!ok) {
-          html += `<div class="spot-card" onclick="goSpot('${sp.id}')">
-            <div class="spot-visual"></div>
-            <div class="spot-info"><div class="spot-name">${sp.name}</div><div class="spot-jp" style="color:#c00">取得失敗</div></div>
+          html += `<div class="spot-card" style="border-left-color:#ccc" onclick="goSpot('${sp.id}')">
+            <div class="spot-visual" style="background:#aaa">⚠️</div>
+            <div class="spot-info"><div class="spot-name">${sp.name}</div><div class="spot-jp" style="font-size:14px;color:#c00">取得失敗</div></div>
           </div>`;
           return;
         }
@@ -1448,26 +1456,24 @@ async function renderSpotList() {
         const wspd = wc.wind_speed_10m ?? 0;
         const wt   = windType(wdeg, sp.facing);
         const jp   = bcmSize(wh);
-        const wn   = waveNum(wh);
         const tDay = tideDay(sp.area);
         const score= surfScore(wh, wp, wdeg, wspd, sp.facing, tDay ? tidePrefBonus(sp, tDay) : 0);
         const col  = scoreColor(score);
-        const arrowColor = wt.cls==='off' ? '#4aff84' : wt.cls==='sideoff' ? '#a4ff4a' : wt.cls==='sideon' ? '#ffd04a' : '#ff6b4a';
+        const arrowColor = wt.cls==='off' ? '#00b359' : wt.cls==='sideoff' ? '#5b8ab8' : wt.cls==='sideon' ? '#f5a623' : '#c0392b';
         const isCurrent = sp.id === SPOT.id;
 
-        html += `<div class="spot-card${isCurrent?' current':''}" onclick="goSpot('${sp.id}')">
-          <div class="spot-visual">
-            <div style="transform:rotate(${wdeg}deg);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:38px solid ${arrowColor};opacity:0.9"></div>
-            <div style="position:absolute;bottom:3px;left:0;right:0;text-align:center;font-size:9px;font-weight:900;color:rgba(255,255,255,0.95)">${wt.short.replace('\n',' ')}</div>
+        html += `<div class="spot-card${isCurrent?' current':''}" style="border-left-color:${col}" onclick="goSpot('${sp.id}')">
+          <div class="spot-visual" style="background:${arrowColor}">
+            <div class="wv-arrow" style="transform:rotate(${wdeg}deg)">▲</div>
+            <div class="wv-label">${wt.short.replace('\n',' ')}</div>
           </div>
           <div class="spot-info">
             <div class="spot-name">${sp.name}${isCurrent ? ' <span style="font-size:9px;background:#5b8ab8;color:#fff;padding:1px 4px;border-radius:6px;vertical-align:middle">表示中</span>' : ''}</div>
-            <div class="spot-jp">${jp}　<span style="font-weight:400;color:#888">${wh.toFixed(2)}m / ${wp.toFixed(0)}s</span></div>
-            <div class="spot-wind-row">${wt.label}（${wspd.toFixed(1)}m/s）${dir(wdeg)}</div>
+            <div class="spot-jp">${jp}<span class="spot-jp-sub">${wh.toFixed(2)}m / ${wp.toFixed(0)}s</span></div>
+            <div class="spot-wind-row">${wt.label}｜${wspd.toFixed(1)}m/s ${dir(wdeg)}</div>
           </div>
           <div class="spot-score-wrap">
             <div class="spot-stars">${scoreToStars(score)}</div>
-            <div class="spot-wave-score">${wn.num}<span>/50</span></div>
           </div>
         </div>`;
       });
@@ -1502,10 +1508,11 @@ function showTab(tab) {
   if (tab==='weather') renderWeather();
 }
 
+// v3.0（2026/7/15）一覧カード全面刷新：重複していた「⭐スコア」と「×10/50」表示を廃止し⭐一本化。波サイズを主役に大きく表示、風向風速を色バッジ化（緑=オフショア〜赤=オンショア）。気象タブにSCW波浪GPVリンク追加
 // v2.9（2026/6/18）スポットごとに最近傍観測点を切り替え（和田→勝浦沖219・千葉北→鹿島222・内房→217）
 // v2.8（2026/6/18）「今の波」をNOWPHAS実測値優先に変更（予報→実測切替・フォールバック付き）
 // v2.5（2026/6/12）うねり分離・3モデル信頼度・NOWPHAS実測・気象庁潮汐・潮の癖スコア・4日間統合グラフ
-const APP_VER = '2.7';
+const APP_VER = '3.0';
 (async () => {
   // 新版が公開されていたら自動で再読み込み（携帯の古いキャッシュ対策）
   try {
