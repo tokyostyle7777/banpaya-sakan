@@ -15,10 +15,10 @@
   <link rel="alternate" hreflang="ja" href="https://banpaya-sakan.com/" />
   <link rel="alternate" hreflang="en" href="https://banpaya-sakan.com/en/" />
   <link rel="alternate" hreflang="x-default" href="https://banpaya-sakan.com/" />
-  <title>万波屋左官店｜南房総・君津・木更津の左官工事</title>
-  <meta name="description" content="南房総・君津・木更津の左官工事は万波屋左官店へ。漆喰・モルタルの室内仕上げから建設会社向けの野丁場まで対応。職人歴20年以上の施工実績。">
-  <meta name="keywords" content="左官,南房総,君津,木更津,漆喰,モルタル,左官工事,千葉,野丁場,内装,塗り壁">
-  <meta property="og:title" content="万波屋左官店｜南房総・千葉の左官工事">
+  <title>万波屋左官店｜君津・木更津・館山・南房総の左官工事</title>
+  <meta name="description" content="君津・木更津・館山・富津・南房総の左官工事は万波屋左官店へ。ジョリパット・そとん壁・漆喰・モルタルの外壁左官から室内仕上げ、建設会社向けの野丁場まで対応。職人歴20年以上の施工実績。">
+  <meta name="keywords" content="左官,左官工事,左官屋,君津,木更津,館山,富津,鴨川,南房総市,南房総,千葉,ジョリパット,ジョリパッド,そとん壁,漆喰,モルタル,珪藻土,外壁左官,塗り壁,野丁場,内装">
+  <meta property="og:title" content="万波屋左官店｜君津・木更津・館山・南房総の左官工事">
   <meta property="og:description" content="漆喰・モルタルの室内仕上げから建設会社向け野丁場まで。万波屋左官店、職人歴20年以上の施工実績。">
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -791,7 +791,7 @@
     </div>
     <div class="service-item">
       <h3>🏚 外壁左官工事</h3>
-      <p>モルタル・漆喰・吹付けなど外壁の塗り壁全般。下地処理から仕上げまで一貫対応。</p>
+      <p>ジョリパット（ジョリパッド）・そとん壁・漆喰・モルタルなど外壁の塗り壁全般。ラス張り・モルタル下地から仕上げまで一貫対応します。</p>
     </div>
     <div class="service-item">
       <h3>🔧 補修・リフォーム</h3>
@@ -818,12 +818,16 @@
   <p class="section-sub">AREA</p>
   <div class="divider"></div>
   <div class="area-tags">
-    <span class="area-tag main">内房エリア</span>
-    <span class="area-tag main">外房エリア</span>
-    <span class="area-tag main">千葉南エリア</span>
+    <span class="area-tag main">君津市</span>
+    <span class="area-tag main">木更津市</span>
+    <span class="area-tag main">富津市</span>
+    <span class="area-tag main">館山市</span>
+    <span class="area-tag main">南房総市</span>
+    <span class="area-tag main">鴨川市</span>
+    <span class="area-tag">袖ケ浦市・市原市</span>
     <span class="area-tag">都内近郊（要相談）</span>
   </div>
-  <p class="area-note">※エリア外もご相談ください。現場・規模によって対応可能です。</p>
+  <p class="area-note">内房・外房・千葉南エリア全域に対応しています。※エリア外もご相談ください。現場・規模によって対応可能です。</p>
 </section>
 
 <!-- 会社概要 -->
@@ -879,7 +883,7 @@
     </p>
 
     <!-- Formspree：送信先メールを設定後にaction URLを更新してください -->
-    <form action="https://formspree.io/f/mrervrbq" method="POST">
+    <form id="contact-form" action="https://formspree.io/f/mrervrbq" method="POST">
       <div class="form-group">
         <label>お名前<span class="required">必須</span></label>
         <input type="text" name="name" placeholder="山田 太郎" required>
@@ -926,5 +930,14 @@
   <small style="margin-top:12px;display:block">© 2026 万波屋左官店 All Rights Reserved.</small>
 </footer>
 
+<!-- GA4 フォーム送信トラッキング -->
+<script>
+  document.getElementById('contact-form').addEventListener('submit', function() {
+    gtag('event', 'generate_lead', {
+      event_category: 'contact',
+      event_label: 'formspree'
+    });
+  });
+</script>
 </body>
 </html>
